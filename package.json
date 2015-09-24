@@ -1,7 +1,7 @@
 {
   "name": "ankara",
   "version": "0.1.0",
-  "description": "",
+  "description": "Code coverage tool leveraging babylon to cover es6/es7 and strawman proposals",
   "main": "dist/index.js",
   "scripts": {
     "start": "npm run typescript && npm run babel",
@@ -12,8 +12,19 @@
     "typescript-watch": "npm run typescript -- --watch",
     "babel-watch": "npm run babel -- --watch"
   },
-  "author": "",
-  "license": "ISC",
+  "author": {
+    "name": "Markus Wolf",
+    "email": "knister.peter@shadowrun-clan.de"
+  },
+  "license": "BSD",
+  "repository": {
+    "type": "git",
+    "url": "KnisterPeter/ankara"
+  },
+  "engines": {
+    "node": ">= 4.0.0",
+    "npm": ">= 2.5.1"
+  },
   "devDependencies": {
     "babel": "^5.8.23",
     "es6-promisify": "^3.0.0",
