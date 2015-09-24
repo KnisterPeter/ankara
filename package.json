@@ -16,7 +16,7 @@
     "name": "Markus Wolf",
     "email": "knister.peter@shadowrun-clan.de"
   },
-  "license": "BSD",
+  "license": "BSD-3-Clause",
   "repository": {
     "type": "git",
     "url": "KnisterPeter/ankara"
