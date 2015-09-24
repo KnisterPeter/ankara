@@ -1,0 +1,9 @@
+{
+	"compilerOptions": {
+		"target": "ES6",
+		"experimentalAsyncFunctions": true
+	},
+	"files": [
+		"lib/index"
+	]
+}
