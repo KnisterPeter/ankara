@@ -20,6 +20,7 @@ export function instrument(file: string): string {
   //       stmt.expression
   //     ])) 
   //   });
+  /*
   traverse(ast, (node) => {
     if (th.isProgram(node)) {
       node.body.unshift(
@@ -34,12 +35,13 @@ export function instrument(file: string): string {
       console.log(node);
     }
   });
+  */
   return toJavaScript(ast);
 }
 
 function parse(file: string): types.File {
-  let code = fs.readFileSync(file).toString('utf-8');
-  return th.convert(babylon.parse(code, {
+  let code = fs.readFileSync(file).toString();
+  return new types.File(babylon.parse(code, {
     sourceType: "module",
     allowReserved: true,
     allowReturnOutsideFunction: false,
@@ -47,5 +49,5 @@ function parse(file: string): types.File {
     plugins: {
       flow: true
     }
-  })) as types.File;
+  }))
 }

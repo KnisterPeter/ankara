@@ -3,8 +3,10 @@ import * as babylon from 'babylon';
 import * as types from './types';
 import * as th from './type-helper';
 
-export function convert(node: any): types.Node {
-  if (th.isFile(node)) {
+export function convert(node: any): types.Node<any> {
+  if (node === null) {
+    return null;
+  } else if (th.isFile(node)) {
     return new types.File(node);
   } else if (th.isProgram(node)) {
     return new types.Program(node);
@@ -57,87 +59,82 @@ export function convert(node: any): types.Node {
   throw new Error(`Unknown type to traverse ${node.type}`)
 }
 
-
-export function isStatement(node: any): node is types.Statement {
-  return isExpressionStatement(node) || isReturnStatement(node);
-}
-
-export function isFile(node: any): node is types.File {
+export function isFile(node: any): node is babylon.File {
   return node.type == 'File';
 }
 
-export function isProgram(node: any): node is types.Program {
+export function isProgram(node: any): node is babylon.Program {
   return node.type == 'Program';
 }
 
-export function isImportDeclaration(node: any): node is types.ImportDeclaration {
+export function isImportDeclaration(node: any): node is babylon.ImportDeclaration {
   return node.type == 'ImportDeclaration';
 }
 
-export function importDeclaration(specifiers: types.ImportNamespaceSpecifier[], source: any): types.ImportDeclaration {
-  return {
+export function importDeclaration(specifiers: types.ImportNamespaceSpecifier[], source: any) {
+  return new types.ImportDeclaration({
     type: 'ImportDeclaration',
     start: undefined,
     end: undefined,
     loc: undefined,
     importKind: 'value',
-    specifiers,
-    source
-  };
+    specifiers: specifiers.map(specifier => specifier.raw),
+    source: source
+  });
 }
 
-export function isImportNamespaceSpecifier(node: any): node is types.ImportNamespaceSpecifier {
+export function isImportNamespaceSpecifier(node: any): node is babylon.ImportNamespaceSpecifier {
   return node.type == 'ImportNamespaceSpecifier';
 }
 
-export function importNamespaceSpecifier(local: any): types.ImportNamespaceSpecifier {
-  return {
+export function importNamespaceSpecifier(local: any) {
+  return new types.ImportNamespaceSpecifier({
     type: 'ImportNamespaceSpecifier',
     start: undefined,
     end: undefined,
     loc: undefined,
     local
-  };
+  });
 }
 
-export function isExportDefaultDeclaration(node: any): node is types.ExportDefaultDeclaration {
+export function isExportDefaultDeclaration(node: any): node is babylon.ExportDefaultDeclaration {
   return node.type == 'ExportDefaultDeclaration';
 }
 
-export function isExportNamedDeclaration(node: any): node is types.ExportNamedDeclaration {
+export function isExportNamedDeclaration(node: any): node is babylon.ExportNamedDeclaration {
   return node.type == 'ExportNamedDeclaration';
 }
 
-export function isFunctionExpression(node: any): node is types.FunctionExpression {
+export function isFunctionExpression(node: any): node is babylon.FunctionExpression {
   return node.type == 'FunctionExpression';
 }
 
-export function isFunctionDeclaration(node: any): node is types.FunctionDeclaration {
+export function isFunctionDeclaration(node: any): node is babylon.FunctionDeclaration {
   return node.type == 'FunctionDeclaration';
 }
 
-export function isBlockStatement(node: any): node is types.BlockStatement {
+export function isBlockStatement(node: any): node is babylon.BlockStatement {
   return node.type == 'BlockStatement';
 }
 
-export function isExpressionStatement(node: any): node is types.ExpressionStatement {
+export function isExpressionStatement(node: any): node is babylon.ExpressionStatement {
   return node.type == 'ExpressionStatement';
 }
 
-export function isCallExpression(node: any): node is types.CallExpression {
+export function isCallExpression(node: any): node is babylon.CallExpression {
   return node.type == 'CallExpression';
 }
 
-export function isMemberExpression(node: any): node is types.MemberExpression {
+export function isMemberExpression(node: any): node is babylon.MemberExpression {
   return node.type == 'MemberExpression';
 }
 
-export function isLiteral(node: any): node is types.Literal {
+export function isLiteral(node: any): node is babylon.Literal {
   return node.type == 'Literal';
 }
 
-export function literal(value: string): types.Literal {
-  return {
+export function literal(value: string) {
+  return new types.Literal({
     type: 'Literal',
     start: undefined,
     end: undefined,
@@ -145,59 +142,59 @@ export function literal(value: string): types.Literal {
     value,
     rawValue: value,
     raw: value
-  };
+  });
 }
 
-export function isIdentifier(node: any): node is types.Identifier {
+export function isIdentifier(node: any): node is babylon.Identifier {
   return node.type == 'Identifier';
 }
 
-export function identifier(name: string): types.Identifier {
-  return {
+export function identifier(name: string) {
+  return new types.Identifier({
     type: 'Identifier',
     start: undefined,
     end: undefined,
     loc: undefined,
     name
-  };
+  });
 }
 
-export function isReturnStatement(node: any): node is types.ReturnStatement {
+export function isReturnStatement(node: any): node is babylon.ReturnStatement {
   return node.type == 'ReturnStatement';
 }
 
-export function isBinaryExpression(node: any): node is types.BinaryExpression {
+export function isBinaryExpression(node: any): node is babylon.BinaryExpression {
   return node.type == 'BinaryExpression';
 }
 
-export function isSequenceExpression(node: any): node is types.SequenceExpression {
+export function isSequenceExpression(node: any): node is babylon.SequenceExpression {
   return node.type == 'SequenceExpression';
 }
 
-export function isVariableDeclaration(node: any): node is types.VariableDeclaration {
+export function isVariableDeclaration(node: any): node is babylon.VariableDeclaration {
   return node.type == 'VariableDeclaration';
 }
 
-export function isVariableDeclarator(node: any): node is types.VariableDeclarator {
+export function isVariableDeclarator(node: any): node is babylon.VariableDeclarator {
   return node.type == 'VariableDeclarator';
 }
 
-export function isArrayExpression(node: any): node is types.ArrayExpression {
+export function isArrayExpression(node: any): node is babylon.ArrayExpression {
   return node.type == 'ArrayExpression';
 }
 
-export function isForOfStatement(node: any): node is types.ForOfStatement {
+export function isForOfStatement(node: any): node is babylon.ForOfStatement {
   return node.type == 'ForOfStatement';
 }
 
-export function isAssignmentExpression(node: any): node is types.AssignmentExpression {
+export function isAssignmentExpression(node: any): node is babylon.AssignmentExpression {
   return node.type == 'AssignmentExpression';
 }
 
-export function isTemplateLiteral(node: any): node is types.TemplateLiteral {
+export function isTemplateLiteral(node: any): node is babylon.TemplateLiteral {
   return node.type == 'TemplateLiteral';
 }
 
-export function isTemplateElement(node: any): node is types.TemplateElement {
+export function isTemplateElement(node: any): node is babylon.TemplateElement {
   return node.type == 'TemplateElement';
 }
