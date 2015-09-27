@@ -2,9 +2,13 @@
 import * as babylon from 'babylon';
 import * as th from './type-helper';
 
-export class Node<T> {
+export class Node<T extends babylon.Node> {
 
   private _raw: T;
+
+  private _start: number;
+
+  private _end: number;
 
   constructor(raw: T) {
     this._raw = raw;
@@ -12,6 +16,20 @@ export class Node<T> {
 
   get raw() {
     return this._raw;
+  }
+
+  get start() {
+    if (!this._start) {
+      this._start = this.raw.start;
+    }
+    return this._start;
+  }
+
+  get end() {
+    if (!this._end) {
+      this._end = this.raw.end;
+    }
+    return this._end;
   }
 
 }
@@ -42,7 +60,7 @@ export class Program extends Node<babylon.Program> {
 
 }
 
-export class Statement<T> extends Node<T> {
+export class Statement<T extends babylon.Node> extends Node<T> {
 }
 
 export class ImportDeclaration extends Statement<babylon.ImportDeclaration> {
@@ -229,7 +247,7 @@ export class ForOfStatement extends Statement<babylon.ForOfStatement> {
 
 }
 
-export class Expression<T> extends Node<T> {
+export class Expression<T extends babylon.Node> extends Node<T> {
 }
 
 export class AssignmentExpression extends Expression<babylon.AssignmentExpression> {

@@ -4,7 +4,7 @@ import * as types from './types';
 import * as th from './type-helper';
 
 export default function toJavaScript(ast: types.File): string {
-  return ast.program.body.map(statement => generateCode(statement)).join('\n');
+  return generateCode(ast);
 }
 
 // TODO: Resolve any node
@@ -18,7 +18,7 @@ function generateCode(node: types.Node<any>): string {
   } else if (node instanceof types.BlockStatement) {
     return `{\n${node.body.map(statement => generateCode(statement)).join('\n')}}\n`;
   } else if (node instanceof types.CallExpression) {
-    return `${generateCode(node.callee)}(${node.raw.arguments.map(arg => generateCode(arg)).join(', ')})`;
+    return `${generateCode(node.callee)}(${node.arguments.map(arg => generateCode(arg)).join(', ')})`;
   } else if (node instanceof types.ExportDefaultDeclaration) {
     return `export default ${generateCode(node.declaration)}\n`;
   } else if (node instanceof types.ExportNamedDeclaration) {
@@ -26,7 +26,7 @@ function generateCode(node: types.Node<any>): string {
   } else if (node instanceof types.ExpressionStatement) {
     return `${generateCode(node.expression)};\n`;
   } else if (node instanceof types.File) {
-    throw new Error('Not implemented');
+    return generateCode(node.program);
   } else if (node instanceof types.ForOfStatement) {
     return `for (${generateCode(node.left)} of ${generateCode(node.right)}) ${generateCode(node.body)}\n`;
   } else if (node instanceof types.FunctionDeclaration) {
@@ -48,7 +48,7 @@ function generateCode(node: types.Node<any>): string {
   } else if (node instanceof types.MemberExpression) {
     return `${generateCode(node.object)}.${generateCode(node.property)}`;
   } else if (node instanceof types.Program) {
-    throw new Error('Not implemented');
+    return node.body.map(statement => generateCode(statement)).join('\n');
   } else if (node instanceof types.ReturnStatement) {
     return `return ${node.argument ? generateCode(node.argument) : ''};\n`;
   } else if (node instanceof types.SequenceExpression) {
@@ -59,8 +59,8 @@ function generateCode(node: types.Node<any>): string {
     return '`' + ([].concat(node.quasis, node.expressions))
       .sort((a, b) => a.start - b.start)
       .map(node => {
-        if (!th.isTemplateElement(node)) {
-        return '${' + generateCode(node) + '}';
+        if (!(node instanceof types.TemplateElement)) {
+          return '${' + generateCode(node) + '}';
         }
         return generateCode(node);
       })
