@@ -29,6 +29,11 @@ declare module 'babylon' {
   export class ImportNamespaceSpecifier extends Node {
     local: Node;
   }
+
+  export class ImportSpecifier extends Node {
+    imported: Identifier;
+    local:  Identifier;
+  }
   
   export class ExportDefaultDeclaration extends Statement {
     declaration: Expression;

@@ -12,6 +12,9 @@ export function traverse(node: types.Node<any>, fn: (node: types.Node<any>) => v
     traverse(node.source, fn);
   } else if (node instanceof types.ImportNamespaceSpecifier) {
     traverse(node.local, fn);
+  } else if (node instanceof types.ImportSpecifier) {
+    traverse(node.imported, fn);
+    traverse(node.local, fn);
   } else if (node instanceof types.ExportDefaultDeclaration) {
     traverse(node.declaration, fn);
   } else if (node instanceof types.ExportNamedDeclaration) {

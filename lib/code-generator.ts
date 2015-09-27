@@ -3,7 +3,7 @@ import * as babylon from 'babylon';
 import * as types from './types';
 import * as th from './type-helper';
 
-export default function toJavaScript(ast: types.File): string {
+export default function toJavaScript(ast: types.Node<any>): string {
   return generateCode(ast);
 }
 
@@ -39,6 +39,8 @@ function generateCode(node: types.Node<any>): string {
     return `import ${node.specifiers.map(specifier => generateCode(specifier)).join(' ')} from ${generateCode(node.source)}\n`;
   } else if (node instanceof types.ImportNamespaceSpecifier) {
     return `* as ${generateCode(node.local)}`;
+  } else if (node instanceof types.ImportSpecifier) {
+    return `{${generateCode(node.imported)} as ${generateCode(node.local)}}`;
   } else if (node instanceof types.Literal) {
     let str = node.value;
     if (typeof str === 'string') {

@@ -13,25 +13,30 @@ let devMode = fs.existsSync(devCover);
 
 export function instrument(file: string): string {
   let ast = parse(file);
-  // find(ast, 'ExpressionStatement,ReturnStatement')
-  //   .forEach(stmt => { 
-  //     stmt.expression.replaceWith(type.sequenceExpression([
-  //       call-to-cover(),
-  //       stmt.expression
-  //     ])) 
-  //   });
   traverse(ast, (node) => {
     if (node instanceof types.Program) {
-      node.body.unshift(
-        th.importDeclaration(
-          [
-            th.importNamespaceSpecifier(th.identifier('__$c'))
-          ],
-          devMode ?  th.literal(devCover) : th.literal('ankara/dist/cover')
+      let coverLib = devMode ? devCover : 'ankara/dist/cover';
+      let fragment = <types.Node<any>>parseFragment(`import {cover as __$c} from '${coverLib}'`);
+      fragment.parent = node;
+      node.body = [].concat(fragment, node.body);
+    } else if (node instanceof types.ExpressionStatement) {
+      let fragment = <types.ExpressionStatement>parseFragment(`__$c.s("${file}", ${node.raw.loc.start.line})`)[0];
+      node.replaceWith(
+        th.expressionStatement(
+          th.sequenceExpression([
+            fragment.expression,
+            node.expression
+          ])
         )
       );
-    } else if (node instanceof types.Statement) {
-      console.log(node);
+    } else if (node instanceof types.ReturnStatement) {
+      let fragment = <types.ExpressionStatement>parseFragment(`__$c.s("${file}", ${node.raw.loc.start.line})`)[0];
+      node.argument.replaceWith(
+        th.sequenceExpression([
+          fragment.expression,
+          node.argument
+        ])
+      );
     }
   });
   return toJavaScript(ast);
@@ -39,7 +44,7 @@ export function instrument(file: string): string {
 
 function parse(file: string): types.File {
   let code = fs.readFileSync(file).toString();
-  return new types.File(babylon.parse(code, {
+  let ast = babylon.parse(code, {
     sourceType: "module",
     allowReserved: true,
     allowReturnOutsideFunction: false,
@@ -47,5 +52,18 @@ function parse(file: string): types.File {
     plugins: {
       flow: true
     }
-  }))
+  });
+  return <types.File>th.convert(ast, null)
+}
+
+function parseFragment(code: string): types.Node<any>|types.Node<any>[] {
+  return (<types.File>th.convert(babylon.parse(code, {
+    sourceType: "module",
+    allowReserved: true,
+    allowReturnOutsideFunction: false,
+    allowImportExportEverywhere: false,
+    plugins: {
+      flow: true
+    }
+  }), null)).program.body;
 }
