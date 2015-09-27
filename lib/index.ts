@@ -20,9 +20,8 @@ export function instrument(file: string): string {
   //       stmt.expression
   //     ])) 
   //   });
-  /*
   traverse(ast, (node) => {
-    if (th.isProgram(node)) {
+    if (node instanceof types.Program) {
       node.body.unshift(
         th.importDeclaration(
           [
@@ -31,11 +30,10 @@ export function instrument(file: string): string {
           devMode ?  th.literal(devCover) : th.literal('ankara/dist/cover')
         )
       );
-    } else if (th.isStatement(node)) {
+    } else if (node instanceof types.Statement) {
       console.log(node);
     }
   });
-  */
   return toJavaScript(ast);
 }
 

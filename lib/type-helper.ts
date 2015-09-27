@@ -71,7 +71,7 @@ export function isImportDeclaration(node: any): node is babylon.ImportDeclaratio
   return node.type == 'ImportDeclaration';
 }
 
-export function importDeclaration(specifiers: types.ImportNamespaceSpecifier[], source: any) {
+export function importDeclaration(specifiers: types.ImportNamespaceSpecifier[], source: types.Literal) {
   return new types.ImportDeclaration({
     type: 'ImportDeclaration',
     start: undefined,
@@ -79,7 +79,7 @@ export function importDeclaration(specifiers: types.ImportNamespaceSpecifier[], 
     loc: undefined,
     importKind: 'value',
     specifiers: specifiers.map(specifier => specifier.raw),
-    source: source
+    source: source.raw
   });
 }
 
@@ -87,13 +87,13 @@ export function isImportNamespaceSpecifier(node: any): node is babylon.ImportNam
   return node.type == 'ImportNamespaceSpecifier';
 }
 
-export function importNamespaceSpecifier(local: any) {
+export function importNamespaceSpecifier(local: types.Identifier) {
   return new types.ImportNamespaceSpecifier({
     type: 'ImportNamespaceSpecifier',
     start: undefined,
     end: undefined,
     loc: undefined,
-    local
+    local: local.raw
   });
 }
 
