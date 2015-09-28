@@ -34,6 +34,8 @@
     "typescript": "^1.6.2"
   },
   "dependencies": {
-    "babylon": "^5.8.23"
+    "babylon": "^5.8.23",
+    "es6-promisify": "^3.0.0",
+    "mkdirp": "^0.5.1"
   }
 }

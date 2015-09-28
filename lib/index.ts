@@ -13,13 +13,22 @@ let devMode = fs.existsSync(devCover);
 
 export function instrument(file: string): string {
   let ast = parse(file);
+  let numStatements = 0;
+  traverse(ast, (node) => {
+    if (node instanceof types.Statement) {
+      numStatements++;
+    }
+  });
   traverse(ast, (node) => {
     if (node instanceof types.Program) {
       let coverLib = devMode ? devCover : 'ankara/dist/cover';
-      let fragment = <types.ImportDeclaration>parseFragment(`import {cover as __$c} from '${coverLib}'`);
+      let fragment = <types.ImportDeclaration>parseFragment(`
+        import {cover as __$c} from '${coverLib}';
+        __$c.init("${file}", ${numStatements});
+      `);
       node.body[0].insertBefore(fragment);
     } else if (node instanceof types.ExpressionStatement) {
-      let fragment = <types.ExpressionStatement>parseFragment(`__$c.s("${file}", ${node.raw.loc.start.line})`)[0];
+      let fragment = <types.ExpressionStatement>parseFragment(`__$c.statement("${file}", ${node.raw.loc.start.line})`)[0];
       node.replaceWith(
         th.expressionStatement(
           th.sequenceExpression([
@@ -29,7 +38,7 @@ export function instrument(file: string): string {
         )
       );
     } else if (node instanceof types.ReturnStatement) {
-      let fragment = <types.ExpressionStatement>parseFragment(`__$c.s("${file}", ${node.raw.loc.start.line})`)[0];
+      let fragment = <types.ExpressionStatement>parseFragment(`__$c.statement("${file}", ${node.raw.loc.start.line})`)[0];
       node.argument.replaceWith(
         th.sequenceExpression([
           fragment.expression,
@@ -37,7 +46,7 @@ export function instrument(file: string): string {
         ])
       );
     } else if (node instanceof types.VariableDeclaration) {
-      let fragment = <types.ExpressionStatement>parseFragment(`__$c.s("${file}", ${node.raw.loc.start.line})`)[0];
+      let fragment = <types.ExpressionStatement>parseFragment(`__$c.statement("${file}", ${node.raw.loc.start.line})`)[0];
       if (node.parent instanceof types.ForOfStatement) {
         node.parent.insertBefore(fragment);
       } else {
