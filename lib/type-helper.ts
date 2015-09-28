@@ -1,60 +1,59 @@
 /// <reference path="../typings/references.d.ts" />
 import * as babylon from 'babylon';
 import * as types from './types';
-import * as th from './type-helper';
 
 export function convert(node: any, parent: types.Node<any>): types.Node<any> {
   if (node === null) {
     return null;
-  } else if (th.isFile(node)) {
+  } else if (isFile(node)) {
     return new types.File(node, null);
-  } else if (th.isProgram(node)) {
+  } else if (isProgram(node)) {
     return new types.Program(node, parent);
-  } else if (th.isImportDeclaration(node)) {
+  } else if (isImportDeclaration(node)) {
     return new types.ImportDeclaration(node, parent);
-  } else if (th.isImportNamespaceSpecifier(node)) {
+  } else if (isImportNamespaceSpecifier(node)) {
     return new types.ImportNamespaceSpecifier(node, parent);
-  } else if (th.isImportSpecifier(node)) {
+  } else if (isImportSpecifier(node)) {
     return new types.ImportSpecifier(node, parent);
-  } else if (th.isExportDefaultDeclaration(node)) {
+  } else if (isExportDefaultDeclaration(node)) {
     return new types.ExportDefaultDeclaration(node, parent);
-  } else if (th.isExportNamedDeclaration(node)) {
+  } else if (isExportNamedDeclaration(node)) {
     return new types.ExportNamedDeclaration(node, parent);
-  } else if (th.isFunctionExpression(node)) {
+  } else if (isFunctionExpression(node)) {
     return new types.FunctionExpression(node, parent);
-  } else if (th.isFunctionDeclaration(node)) {
+  } else if (isFunctionDeclaration(node)) {
     return new types.FunctionDeclaration(node, parent);
-  } else if (th.isBlockStatement(node)) {
+  } else if (isBlockStatement(node)) {
     return new types.BlockStatement(node, parent);
-  } else if (th.isExpressionStatement(node)) {
+  } else if (isExpressionStatement(node)) {
     return new types.ExpressionStatement(node, parent);
-  } else if (th.isSequenceExpression(node)) {
+  } else if (isSequenceExpression(node)) {
     return new types.SequenceExpression(node, parent);
-  } else if (th.isCallExpression(node)) {
+  } else if (isCallExpression(node)) {
     return new types.CallExpression(node, parent);
-  } else if (th.isMemberExpression(node)) {
+  } else if (isMemberExpression(node)) {
     return new types.MemberExpression(node, parent);
-  } else if (th.isIdentifier(node)) {
+  } else if (isIdentifier(node)) {
     return new types.Identifier(node, parent);
-  } else if (th.isLiteral(node)) {
+  } else if (isLiteral(node)) {
     return new types.Literal(node, parent);
-  } else if (th.isReturnStatement(node)) {
+  } else if (isReturnStatement(node)) {
     return new types.ReturnStatement(node, parent);
-  } else if (th.isBinaryExpression(node)) {
+  } else if (isBinaryExpression(node)) {
     return new types.BinaryExpression(node, parent);
-  } else if (th.isVariableDeclaration(node)) {
+  } else if (isVariableDeclaration(node)) {
     return new types.VariableDeclaration(node, parent);
-  } else if (th.isVariableDeclarator(node)) {
+  } else if (isVariableDeclarator(node)) {
     return new types.VariableDeclarator(node, parent);
-  } else if (th.isArrayExpression(node)) {
+  } else if (isArrayExpression(node)) {
     return new types.ArrayExpression(node, parent);
-  } else if (th.isForOfStatement(node)) {
+  } else if (isForOfStatement(node)) {
     return new types.ForOfStatement(node, parent);
-  } else if (th.isAssignmentExpression(node)) {
+  } else if (isAssignmentExpression(node)) {
     return new types.AssignmentExpression(node, parent);
-  } else if (th.isTemplateLiteral(node)) {
+  } else if (isTemplateLiteral(node)) {
     return new types.TemplateLiteral(node, parent);
-  } else if (th.isTemplateElement(node)) {
+  } else if (isTemplateElement(node)) {
     return new types.TemplateElement(node, parent);
   }
   console.error(node);

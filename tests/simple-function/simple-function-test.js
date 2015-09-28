@@ -1,12 +1,12 @@
 import test from 'tape';
-import * as path from 'path';
+import {join, relative} from 'path';
 import {instrument} from '../../';
 import {transform} from 'babel';
 
 test('exec simple function', (t) => {
   t.plan(4);
 
-  let code = instrument(path.join(__dirname, 'functions.js'));
+  let code = instrument(join('tests', 'simple-function', 'functions.js'));
   console.log(code);
 
   let mod = {

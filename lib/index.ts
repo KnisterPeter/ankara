@@ -16,9 +16,8 @@ export function instrument(file: string): string {
   traverse(ast, (node) => {
     if (node instanceof types.Program) {
       let coverLib = devMode ? devCover : 'ankara/dist/cover';
-      let fragment = <types.Node<any>>parseFragment(`import {cover as __$c} from '${coverLib}'`);
-      fragment.parent = node;
-      node.body = [].concat(fragment, node.body);
+      let fragment = <types.ImportDeclaration>parseFragment(`import {cover as __$c} from '${coverLib}'`);
+      node.body[0].insertBefore(fragment);
     } else if (node instanceof types.ExpressionStatement) {
       let fragment = <types.ExpressionStatement>parseFragment(`__$c.s("${file}", ${node.raw.loc.start.line})`)[0];
       node.replaceWith(
@@ -37,6 +36,13 @@ export function instrument(file: string): string {
           node.argument
         ])
       );
+    } else if (node instanceof types.VariableDeclaration) {
+      let fragment = <types.ExpressionStatement>parseFragment(`__$c.s("${file}", ${node.raw.loc.start.line})`)[0];
+      if (node.parent instanceof types.ForOfStatement) {
+        node.parent.insertBefore(fragment);
+      } else {
+        node.insertBefore(fragment);
+      }
     }
   });
   return toJavaScript(ast);
