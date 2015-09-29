@@ -4,3 +4,4 @@
 /tsd.json
 /.vscode
 npm-debug.log
+/coverage

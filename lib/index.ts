@@ -15,7 +15,9 @@ export function instrument(file: string): string {
   let ast = parse(file);
   let numStatements = 0;
   traverse(ast, (node) => {
-    if (node instanceof types.Statement) {
+    if (node instanceof types.ExpressionStatement
+        || node instanceof types.ReturnStatement
+        || node instanceof types.VariableDeclaration) {
       numStatements++;
     }
   });
@@ -28,6 +30,20 @@ export function instrument(file: string): string {
       `);
       node.body[0].insertBefore(fragment);
     } else if (node instanceof types.ExpressionStatement) {
+      // Guard of own code...
+      const expression = node.expression;
+      if (expression instanceof types.CallExpression) {
+        let expression2: types.Node<any> = expression.callee;
+        while (expression2 instanceof types.MemberExpression) {
+          expression2 = (<types.MemberExpression>expression2).object;
+        }
+        if (expression2 instanceof types.Identifier) {
+          if (expression2.name === '__$c') {
+            return;
+          }
+        }
+      }
+
       let fragment = <types.ExpressionStatement>parseFragment(`__$c.statement("${file}", ${node.raw.loc.start.line})`)[0];
       node.replaceWith(
         th.expressionStatement(

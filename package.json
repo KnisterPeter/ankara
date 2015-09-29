@@ -27,7 +27,6 @@
   },
   "devDependencies": {
     "babel": "^5.8.23",
-    "es6-promisify": "^3.0.0",
     "faucet": "0.0.1",
     "glob": "^5.0.14",
     "tape": "^4.2.0",
