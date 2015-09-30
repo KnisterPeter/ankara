@@ -27,14 +27,14 @@
     "npm": ">= 2.5.1"
   },
   "devDependencies": {
-    "babel": "^5.8.23",
+    "babel": "5.8.23",
     "faucet": "0.0.1",
-    "glob": "^5.0.14",
-    "tape": "^4.2.0",
-    "typescript": "^1.6.2"
+    "glob": "5.0.15",
+    "tape": "4.2.0",
+    "typescript": "1.6.2"
   },
   "dependencies": {
-    "babylon": "^5.8.23",
-    "mkdirp": "^0.5.1"
+    "babylon": "5.8.23",
+    "mkdirp": "0.5.1"
   }
 }
