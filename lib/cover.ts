@@ -1,7 +1,7 @@
 /// <reference path="../typings/references.d.ts" />
 // import promisify from 'es6-promisify';
 import {join} from 'path';
-import mkdirp from 'mkdirp';
+import {sync as mkdirp} from 'mkdirp';
 import {readFileSync, writeFileSync} from 'fs';
 // import {readFileSync as readFileSyncNodeback, writeFileSync as writeFileSyncNodeback} from 'fs';
 // const readFileSync = promisify(readFileSyncNodeback);
@@ -24,7 +24,7 @@ class Cover {
 
   init(file: string, numStatements: number) {
     this.dirname = join(process.cwd(), 'coverage');
-    mkdirp.sync(this.dirname);
+    mkdirp(this.dirname);
     this.data[file] = {
       numStatements,
       lines: []

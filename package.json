@@ -7,10 +7,11 @@
     "start": "npm run typescript && npm run babel",
     "typescript": "tsc --outDir temp",
     "babel": "babel --out-dir dist temp",
-    "test": "./tests/run.js |faucet",
+    "test": "npm start && ./tests/run.js |faucet",
     "watch": "npm run typescript-watch & npm run babel-watch",
     "typescript-watch": "npm run typescript -- --watch",
-    "babel-watch": "npm run babel -- --watch"
+    "babel-watch": "npm run babel -- --watch",
+    "clean": "rm -rf dist temp"
   },
   "author": {
     "name": "Markus Wolf",
@@ -34,7 +35,6 @@
   },
   "dependencies": {
     "babylon": "^5.8.23",
-    "es6-promisify": "^3.0.0",
     "mkdirp": "^0.5.1"
   }
 }
