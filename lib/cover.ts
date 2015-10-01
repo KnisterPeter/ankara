@@ -1,11 +1,7 @@
 /// <reference path="../typings/references.d.ts" />
-// import promisify from 'es6-promisify';
 import {join} from 'path';
 import {sync as mkdirp} from 'mkdirp';
 import {readFileSync, writeFileSync} from 'fs';
-// import {readFileSync as readFileSyncNodeback, writeFileSync as writeFileSyncNodeback} from 'fs';
-// const readFileSync = promisify(readFileSyncNodeback);
-// const writeFileSync = promisify(writeFileSyncNodeback);
 
 interface CoverageData {
   [file: string]: FileCoverageData;
@@ -40,7 +36,7 @@ class Cover {
   }
 
   private flush() {
-    writeFileSync(join(this.dirname, 'data.json'), JSON.stringify(this.data));
+    writeFileSync(join(this.dirname, 'data.json'), JSON.stringify(this.data, undefined, ' '));
   }
 
 }

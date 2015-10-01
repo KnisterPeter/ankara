@@ -33,14 +33,36 @@ function generateCode(node: types.Node<any>): string {
     return `function${node.generator ? '*' : ''} ${node.id ? generateCode(node.id) : ''}(${node.params.map(param => generateCode(param)).join(', ')}) ${generateCode(node.body)}`;
   } else if (node instanceof types.FunctionExpression) {
     return `function${node.generator ? '*' : ''} ${node.id ? generateCode(node.id) : ''}(${node.params.map(param => generateCode(param)).join(', ')}) ${generateCode(node.body)}`;
+  } else if (node instanceof types.ArrowFunctionExpression) {
+    return `${node.generator ? '*' : ''}(${node.params.map(param => generateCode(param)).join(', ')}) => ${generateCode(node.body)}`;
   } else if (node instanceof types.Identifier) {
     return node.name;
   } else if (node instanceof types.ImportDeclaration) {
-    return `import ${node.specifiers.map(specifier => generateCode(specifier)).join(' ')} from ${generateCode(node.source)}\n`;
+    let imports = [];
+    let namedImports = node.specifiers
+      .filter(specifier => specifier instanceof types.ImportSpecifier)
+      .map(specifier => generateCode(specifier))
+      .join(', ');
+    if (namedImports) {
+      imports.push(`{${namedImports}}`);
+    }
+    let otherImports = node.specifiers
+      .filter(specifier => !(specifier instanceof types.ImportSpecifier))
+      .map(specifier => generateCode(specifier))
+      .join(', ');
+    if (otherImports) {
+      imports.push(otherImports);
+    }
+    return `import ${imports.join(', ')} from ${generateCode(node.source)}\n`;
+  } else if (node instanceof types.ImportDefaultSpecifier) {
+    return `${generateCode(node.local)}`;
   } else if (node instanceof types.ImportNamespaceSpecifier) {
     return `* as ${generateCode(node.local)}`;
   } else if (node instanceof types.ImportSpecifier) {
-    return `{${generateCode(node.imported)} as ${generateCode(node.local)}}`;
+    if (node.imported.name == node.local.name) {
+      return `${generateCode(node.imported)}`;
+    }
+    return `${generateCode(node.imported)} as ${generateCode(node.local)}`;
   } else if (node instanceof types.Literal) {
     let str = node.value;
     if (typeof str === 'string') {

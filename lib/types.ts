@@ -157,6 +157,23 @@ export class ImportDeclaration extends Statement<babylon.ImportDeclaration> {
 
 }
 
+export class ImportDefaultSpecifier extends Node<babylon.ImportDefaultSpecifier> {
+
+  private _local: Identifier;
+
+  get local() {
+    if (!this._local) {
+      this._local = <Identifier>th.convert(this.raw.local, this);
+    }
+    return this._local;
+  }
+
+  protected replaceChild(source: Node<any>, dest: Node<any>|Node<any>[]) {
+    throw new Error('Unsupported');
+  }
+
+}
+
 export class ImportNamespaceSpecifier extends Node<babylon.ImportNamespaceSpecifier> {
 
   private _local: Node<any>;
@@ -544,6 +561,60 @@ export class FunctionExpression extends Expression<babylon.FunctionExpression> {
   }
 
 }
+
+export class ArrowFunctionExpression extends Expression<babylon.ArrowFunctionExpression> {
+
+  _id: Identifier;
+
+  _generator: boolean;
+
+  _expression: boolean;
+
+  _params: Identifier[];
+
+  _body: Statement<babylon.Statement>;
+
+  get id() {
+    if (!this._id) {
+      this._id = <Identifier>th.convert(this.raw.id, this);
+    }
+    return this._id;
+  }
+
+  get generator() {
+    if (!this._generator) {
+      this._generator = this.raw.generator;
+    }
+    return this._generator;
+  }
+
+  get expression() {
+    if (!this._expression) {
+      this._expression = this.raw.expression;
+    }
+    return this._expression;
+  }
+
+  get params() {
+    if (!this._params) {
+      this._params = this.raw.params.map(param => <Identifier>th.convert(param, this));
+    }
+    return this._params;
+  }
+
+  get body() {
+    if (!this._body) {
+      this._body = th.convert(this.raw.body, this);
+    }
+    return this._body;
+  }
+
+  protected replaceChild(source: Node<any>, dest: Node<any>|Node<any>[]) {
+    throw new Error('Unsupported');
+  }
+
+}
+
 
 export class FunctionDeclaration extends Expression<babylon.FunctionDeclaration> {
 

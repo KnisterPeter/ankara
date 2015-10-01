@@ -7,6 +7,7 @@ import * as types from './types';
 import * as th from './type-helper';
 import {traverse} from './visitor';
 import toJavaScript from './code-generator';
+import './register';
 
 let devCover = path.join(__dirname, 'cover.js');
 let devMode = fs.existsSync(devCover);

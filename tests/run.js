@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 require('babel/register');
+require('../register');
 
 var glob = require('glob');
 var path = require('path');

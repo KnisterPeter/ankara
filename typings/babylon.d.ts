@@ -1,144 +1,166 @@
 declare module 'babylon' {
   export function parse(code: string, options: any): File;
 
-  export abstract class Node {
+  export interface Position {
+    line: number;
+    column: number;
+  }
+
+  export interface SourceLocation {
+    start: Position;
+    end: Position;
+  }
+
+  export interface Node {
     type: string;
     start: number;
     end: number;
-    loc: any;
+    loc: SourceLocation;
   }
-  
-  export class File extends Node {
+
+  export interface File extends Node {
     program: Program;
   }
-  
-  export class Program extends Node {
+
+  export interface Program extends Node {
     sourceType: string;
     body: Statement[];
   }
-  
-  export abstract class Statement extends Node {
+
+  export interface Statement extends Node {
   }
-  
-  export class ImportDeclaration extends Statement {
+
+  export interface ImportDeclaration extends Statement {
     importKind: string;
     specifiers: ImportNamespaceSpecifier[];
     source: Node;
   }
-  
-  export class ImportNamespaceSpecifier extends Node {
+
+  export interface ImportDefaultSpecifier extends Node {
+    local: Identifier;
+  }
+
+  export interface ImportNamespaceSpecifier extends Node {
     local: Node;
   }
 
-  export class ImportSpecifier extends Node {
+  export interface ImportSpecifier extends Node {
     imported: Identifier;
     local:  Identifier;
   }
   
-  export class ExportDefaultDeclaration extends Statement {
+  export interface ExportDefaultDeclaration extends Statement {
     declaration: Expression;
   }
   
-  export class ExportNamedDeclaration extends Statement {
+  export interface ExportNamedDeclaration extends Statement {
     specifiers: Node[];
     source: any;
     declaration: Node;
   }
   
-  export class BlockStatement extends Statement {
+  export interface BlockStatement extends Statement {
     body: Statement[];
   }
   
-  export class ExpressionStatement extends Statement {
+  export interface ExpressionStatement extends Statement {
     expression: Expression;
   }
   
-  export class ReturnStatement extends Statement {
+  export interface ReturnStatement extends Statement {
     argument: Expression;
   }
   
-  export class VariableDeclaration extends Statement {
+  export interface VariableDeclaration extends Statement {
     kind: string;
     declarations: VariableDeclarator[];
   }
   
-  export class VariableDeclarator extends Node {
+  export interface VariableDeclarator extends Node {
     id: Identifier;
     init: Expression;
   }
   
-  export class ForOfStatement extends Statement {
+  export interface ForOfStatement extends Statement {
     left: Node;
     right: Node;
     body: Statement;
   }
   
-  export abstract class Expression extends Node {
+  export interface Expression extends Node {
   }
-  
-  export class AssignmentExpression extends Expression {
+
+  export interface AssignmentExpression extends Expression {
     operator: string;
     left: Node;
     right: Expression;
   }
-  
-  export class ArrayExpression extends Expression {
+
+  export interface ArrayExpression extends Expression {
     elements: Expression[];
   }
-  
-  export class SequenceExpression extends Expression {
+
+  export interface SequenceExpression extends Expression {
     expressions: Expression[];
   }
-  
-  export class BinaryExpression extends Expression {
+
+  export interface BinaryExpression extends Expression {
     operator: string;
     left: Expression;
     right: Expression;
   }
-  
-  export class FunctionExpression extends Expression {
+
+  export interface FunctionExpression extends Expression {
     id: Node;
     generator: boolean;
     expression: boolean;
     params: any[];
     body: BlockStatement;
   }
-  
-  export class FunctionDeclaration extends Expression {
+
+  export interface ArrowFunctionExpression extends Expression {
+    id: Identifier;
+    generator: boolean;
+    expression: boolean;
+    params: Identifier[];
+    body: Statement;
+  }
+
+  export interface FunctionDeclaration extends Expression {
     id: Node;
     generator: boolean;
     expression: boolean;
     params: any[];
     body: BlockStatement;
   }
-  
-  export class CallExpression extends Expression {
+
+  export interface CallExpression extends Expression {
     callee: Expression;
     arguments: any[];
   }
-  
-  export class MemberExpression extends Expression {
+
+  export interface MemberExpression extends Expression {
     object: Node;
     property: Node;
   }
   
-  export class Literal extends Expression {
+  export interface Literal extends Expression {
     value: string|number;
     rawValue: string|number;
     raw: string;
   }
   
-  export class TemplateLiteral extends Expression {
+  export interface TemplateLiteral extends Expression {
     expressions: Expression[];
     quasis: TemplateElement[];
   }
   
-  export class TemplateElement extends Node {
+  export interface TemplateElement extends Node {
     value: { raw: string; cooked: string };
     tail: boolean;
   }
   
-  export class Identifier extends Expression {
+  export interface Identifier extends Expression {
     name: string;
   }
 }

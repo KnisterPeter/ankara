@@ -10,6 +10,8 @@ export function traverse(node: types.Node<any>, fn: (node: types.Node<any>) => v
   } else if (node instanceof types.ImportDeclaration) {
     node.specifiers.forEach(specifier => traverse(specifier, fn));
     traverse(node.source, fn);
+  } else if (node instanceof types.ImportDefaultSpecifier) {
+    traverse(node.local, fn);
   } else if (node instanceof types.ImportNamespaceSpecifier) {
     traverse(node.local, fn);
   } else if (node instanceof types.ImportSpecifier) {
@@ -20,6 +22,10 @@ export function traverse(node: types.Node<any>, fn: (node: types.Node<any>) => v
   } else if (node instanceof types.ExportNamedDeclaration) {
     traverse(node.declaration, fn);
   } else if (node instanceof types.FunctionExpression) {
+    node.id && traverse(node.id, fn);
+    node.params.forEach(param => traverse(param, fn));
+    traverse(node.body, fn);
+  } else if (node instanceof types.ArrowFunctionExpression) {
     node.id && traverse(node.id, fn);
     node.params.forEach(param => traverse(param, fn));
     traverse(node.body, fn);
