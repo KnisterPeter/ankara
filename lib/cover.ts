@@ -8,7 +8,7 @@ interface CoverageData {
 }
 
 interface FileCoverageData {
-  numStatements: number;
+  statements: number[];
   lines: number[];
 }
 
@@ -18,11 +18,11 @@ class Cover {
 
   private data: CoverageData = {};
 
-  init(file: string, numStatements: number) {
+  init(file: string, statements: number[]) {
     this.dirname = join(process.cwd(), 'coverage');
     mkdirp(this.dirname);
     this.data[file] = {
-      numStatements,
+      statements,
       lines: []
     };
     this.flush();

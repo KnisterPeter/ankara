@@ -14,12 +14,12 @@ let devMode = fs.existsSync(devCover);
 
 export function instrument(file: string): string {
   let ast = parse(file);
-  let numStatements = 0;
+  let statements = [];
   traverse(ast, (node) => {
     if (node instanceof types.ExpressionStatement
         || node instanceof types.ReturnStatement
         || node instanceof types.VariableDeclaration) {
-      numStatements++;
+      statements.push(node.loc.start.line);
     }
   });
   traverse(ast, (node) => {
@@ -27,7 +27,7 @@ export function instrument(file: string): string {
       let coverLib = devMode ? devCover : 'ankara/dist/cover';
       let fragment = <types.ImportDeclaration>parseFragment(`
         import {cover as __$c} from '${coverLib}';
-        __$c.init("${file}", ${numStatements});
+        __$c.init("${file}", [${statements}]);
       `);
       node.body[0].insertBefore(fragment);
     } else if (node instanceof types.ExpressionStatement) {
@@ -45,7 +45,7 @@ export function instrument(file: string): string {
         }
       }
 
-      let fragment = <types.ExpressionStatement>parseFragment(`__$c.statement("${file}", ${node.raw.loc.start.line})`)[0];
+      let fragment = <types.ExpressionStatement>parseFragment(`__$c.statement("${file}", ${node.loc.start.line})`)[0];
       node.replaceWith(
         th.expressionStatement(
           th.sequenceExpression([

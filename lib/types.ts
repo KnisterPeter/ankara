@@ -29,6 +29,10 @@ export abstract class Node<T extends babylon.Node> {
     this._parent = parent;
   }
 
+  get loc() {
+    return this.raw.loc;
+  }
+
   get start() {
     if (!this._start) {
       this._start = this.raw.start;
