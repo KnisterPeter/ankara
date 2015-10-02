@@ -13,6 +13,7 @@ let devCover = path.join(__dirname, 'cover.js');
 let devMode = fs.existsSync(devCover);
 
 export function instrument(file: string): string {
+  const relativeFile = path.relative(process.cwd(), file);
   let ast = parse(file);
   let statements = [];
   traverse(ast, (node) => {
@@ -27,7 +28,7 @@ export function instrument(file: string): string {
       let coverLib = devMode ? devCover : 'ankara/dist/cover';
       let fragment = <types.ImportDeclaration>parseFragment(`
         import {cover as __$c} from '${coverLib}';
-        __$c.init("${file}", [${statements}]);
+        __$c.init("${relativeFile}", [${statements}]);
       `);
       node.body[0].insertBefore(fragment);
     } else if (node instanceof types.ExpressionStatement) {
@@ -45,7 +46,7 @@ export function instrument(file: string): string {
         }
       }
 
-      let fragment = <types.ExpressionStatement>parseFragment(`__$c.statement("${file}", ${node.loc.start.line})`)[0];
+      let fragment = <types.ExpressionStatement>parseFragment(`__$c.statement("${relativeFile}", ${node.loc.start.line})`)[0];
       node.replaceWith(
         th.expressionStatement(
           th.sequenceExpression([
@@ -55,7 +56,7 @@ export function instrument(file: string): string {
         )
       );
     } else if (node instanceof types.ReturnStatement) {
-      let fragment = <types.ExpressionStatement>parseFragment(`__$c.statement("${file}", ${node.raw.loc.start.line})`)[0];
+      let fragment = <types.ExpressionStatement>parseFragment(`__$c.statement("${relativeFile}", ${node.raw.loc.start.line})`)[0];
       node.argument.replaceWith(
         th.sequenceExpression([
           fragment.expression,
@@ -63,7 +64,7 @@ export function instrument(file: string): string {
         ])
       );
     } else if (node instanceof types.VariableDeclaration) {
-      let fragment = <types.ExpressionStatement>parseFragment(`__$c.statement("${file}", ${node.raw.loc.start.line})`)[0];
+      let fragment = <types.ExpressionStatement>parseFragment(`__$c.statement("${relativeFile}", ${node.raw.loc.start.line})`)[0];
       if (node.parent instanceof types.ForOfStatement) {
         node.parent.insertBefore(fragment);
       } else {

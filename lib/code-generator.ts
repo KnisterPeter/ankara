@@ -70,7 +70,11 @@ function generateCode(node: types.Node<any>): string {
     }
     return <string>str;
   } else if (node instanceof types.MemberExpression) {
-    return `${generateCode(node.object)}.${generateCode(node.property)}`;
+    const property = node.property;
+    if (property instanceof types.Literal) {
+      return `${generateCode(node.object)}[${generateCode(property)}]`;
+    }
+    return `${generateCode(node.object)}.${generateCode(property)}`;
   } else if (node instanceof types.Program) {
     return node.body.map(statement => generateCode(statement)).join('\n');
   } else if (node instanceof types.ReturnStatement) {
