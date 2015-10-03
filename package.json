@@ -30,7 +30,7 @@
     "babel": "5.8.23",
     "faucet": "0.0.1",
     "glob": "5.0.15",
-    "tape": "4.2.0",
+    "tape": "4.2.1",
     "typescript": "1.6.2"
   },
   "dependencies": {
