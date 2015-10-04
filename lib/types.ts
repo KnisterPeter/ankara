@@ -1,8 +1,11 @@
 /// <reference path="../typings/references.d.ts" />
 import * as babylon from 'babylon';
 import * as th from './type-helper';
+import {parse, parseFragment} from './parser';
 
 export abstract class Node<T extends babylon.Node> {
+
+  private _instrumented: boolean;
 
   private _raw: T;
 
@@ -12,9 +15,10 @@ export abstract class Node<T extends babylon.Node> {
 
   private _end: number;
 
-  constructor(raw: T, parent?: Node<any>) {
+  constructor(raw: T, parent?: Node<any>, instrumented = false) {
     this._raw = raw;
     this._parent = parent;
+    this._instrumented = instrumented;
   }
 
   get raw() {
@@ -47,11 +51,21 @@ export abstract class Node<T extends babylon.Node> {
     return this._end;
   }
 
+  get instrumented() {
+    return this._instrumented;
+  }
+
+  public instrument(path: string): void {
+    throw new Error('Unsupported');
+  }
+
   replaceWith(nodes: Node<any>|Node<any>[]) {
     this.parent.replaceChild(this, nodes);
   }
 
-  protected abstract replaceChild(source: Node<any>, dest: Node<any>|Node<any>[]);
+  protected replaceChild(source: Node<any>, dest: Node<any>|Node<any>[]) {
+    throw new Error('Unsupported');
+  }
 
   insertBefore(nodes: Node<any>|Node<any>[]) {
     let children;
@@ -84,10 +98,6 @@ export class File extends Node<babylon.File> {
       this._program = new Program(this.raw.program, this);
     }
     return this._program;
-  }
-
-  protected replaceChild(source: Node<any>, dest: Node<any>|Node<any>[]) {
-    throw new Error('Unsupported');
   }
 
 }
@@ -155,10 +165,6 @@ export class ImportDeclaration extends Statement<babylon.ImportDeclaration> {
     return this._source;
   }
 
-  protected replaceChild(source: Node<any>, dest: Node<any>|Node<any>[]) {
-    throw new Error('Unsupported');
-  }
-
 }
 
 export class ImportDefaultSpecifier extends Node<babylon.ImportDefaultSpecifier> {
@@ -172,10 +178,6 @@ export class ImportDefaultSpecifier extends Node<babylon.ImportDefaultSpecifier>
     return this._local;
   }
 
-  protected replaceChild(source: Node<any>, dest: Node<any>|Node<any>[]) {
-    throw new Error('Unsupported');
-  }
-
 }
 
 export class ImportNamespaceSpecifier extends Node<babylon.ImportNamespaceSpecifier> {
@@ -187,10 +189,6 @@ export class ImportNamespaceSpecifier extends Node<babylon.ImportNamespaceSpecif
       this._local = th.convert(this.raw.local, this);
     }
     return this._local;
-  }
-
-  protected replaceChild(source: Node<any>, dest: Node<any>|Node<any>[]) {
-    throw new Error('Unsupported');
   }
 
 }
@@ -215,10 +213,6 @@ export class ImportSpecifier extends Node<babylon.ImportSpecifier> {
     return this._local;
   }
 
-  protected replaceChild(source: Node<any>, dest: Node<any>|Node<any>[]) {
-    throw new Error('Unsupported');
-  }
-
 }
 
 export class ExportDefaultDeclaration extends Statement<babylon.ExportDefaultDeclaration> {
@@ -232,10 +226,6 @@ export class ExportDefaultDeclaration extends Statement<babylon.ExportDefaultDec
     return this._declaration;
   }
 
-  protected replaceChild(source: Node<any>, dest: Node<any>|Node<any>[]) {
-    throw new Error('Unsupported');
-  }
-
 }
 
 export class ExportNamedDeclaration extends Statement<babylon.ExportNamedDeclaration> {
@@ -247,10 +237,6 @@ export class ExportNamedDeclaration extends Statement<babylon.ExportNamedDeclara
       this._declaration = th.convert(this.raw.declaration, this);
     }
     return this._declaration;
-  }
-
-  protected replaceChild(source: Node<any>, dest: Node<any>|Node<any>[]) {
-    throw new Error('Unsupported');
   }
 
 }
@@ -286,6 +272,10 @@ export class ExpressionStatement extends Statement<babylon.ExpressionStatement> 
 
   private _expression: Expression<any>;
 
+  constructor(raw: babylon.ExpressionStatement, parent?: Node<any>) {
+    super(raw, parent, true);
+  }
+
   get expression() {
     if (!this._expression) {
       this._expression = th.convert(this.raw.expression, this);
@@ -293,8 +283,30 @@ export class ExpressionStatement extends Statement<babylon.ExpressionStatement> 
     return this._expression;
   }
 
-  protected replaceChild(source: Node<any>, dest: Node<any>|Node<any>[]) {
-    throw new Error('Unsupported');
+  public instrument(path: string): void {
+    // Guard of own code...
+    const expression = this.expression;
+    if (expression instanceof CallExpression) {
+      let expression2: Node<any> = expression.callee;
+      while (expression2 instanceof MemberExpression) {
+        expression2 = (<MemberExpression>expression2).object;
+      }
+      if (expression2 instanceof Identifier) {
+        if (expression2.name === '__$c') {
+          return;
+        }
+      }
+    }
+
+    let fragment = <ExpressionStatement>parseFragment(`__$c.statement("${path}", ${this.loc.start.line})`)[0];
+    this.replaceWith(
+      th.expressionStatement(
+        th.sequenceExpression([
+          fragment.expression,
+          this.expression
+        ])
+      )
+    );
   }
 
 }
@@ -303,11 +315,25 @@ export class ReturnStatement extends Statement<babylon.ReturnStatement> {
 
   private _argument: Expression<any>;
 
+  constructor(raw: babylon.ReturnStatement, parent?: Node<any>) {
+    super(raw, parent, true);
+  }
+
   get argument() {
     if (!this._argument) {
       this._argument = th.convert(this.raw.argument, this);
     }
     return this._argument;
+  }
+
+  public instrument(path: string): void {
+    let fragment = <ExpressionStatement>parseFragment(`__$c.statement("${path}", ${this.loc.start.line})`)[0];
+    this.argument.replaceWith(
+      th.sequenceExpression([
+        fragment.expression,
+        this.argument
+      ])
+    );
   }
 
   protected replaceChild(source: Node<any>, dest: Node<any>|Node<any>[]) {
@@ -327,6 +353,10 @@ export class VariableDeclaration extends Statement<babylon.VariableDeclaration> 
 
   private _declarations: VariableDeclarator[];
 
+  constructor(raw: babylon.VariableDeclaration, parent?: Node<any>) {
+    super(raw, parent, true);
+  }
+
   get kind() {
     if (!this._kind) {
       this._kind = this.raw.kind;
@@ -341,8 +371,13 @@ export class VariableDeclaration extends Statement<babylon.VariableDeclaration> 
     return this._declarations;
   }
 
-  protected replaceChild(source: Node<any>, dest: Node<any>|Node<any>[]) {
-    throw new Error('Unsupported');
+  public instrument(path: string): void {
+    let fragment = <ExpressionStatement>parseFragment(`__$c.statement("${path}", ${this.loc.start.line})`)[0];
+    if (this.parent instanceof ForOfStatement) {
+      this.parent.insertBefore(fragment);
+    } else {
+      this.insertBefore(fragment);
+    }
   }
 
 }
@@ -365,10 +400,6 @@ export class VariableDeclarator extends Node<babylon.VariableDeclarator> {
       this._init = th.convert(this.raw.init, this);
     }
     return this._init;
-  }
-
-  protected replaceChild(source: Node<any>, dest: Node<any>|Node<any>[]) {
-    throw new Error('Unsupported');
   }
 
 }
@@ -402,10 +433,6 @@ export class ForOfStatement extends Statement<babylon.ForOfStatement> {
     return this._body;
   }
 
-  protected replaceChild(source: Node<any>, dest: Node<any>|Node<any>[]) {
-    throw new Error('Unsupported');
-  }
-
 }
 
 export abstract class Expression<T extends babylon.Node> extends Node<T> {
@@ -420,10 +447,6 @@ export class ObjectExpression extends Expression<babylon.ObjectExpression> {
       this._properties = this.raw.properties.map(property => th.convert(property, this));
     }
     return this._properties;
-  }
-
-  protected replaceChild(source: Node<any>, dest: Node<any>|Node<any>[]) {
-    throw new Error('Unsupported');
   }
 
 }
@@ -457,10 +480,6 @@ export class UnaryExpression extends Expression<babylon.UnaryExpression> {
     return this._argument;
   }
 
-  protected replaceChild(source: Node<any>, dest: Node<any>|Node<any>[]) {
-    throw new Error('Unsupported');
-  }
-
 }
 
 export class LogicalExpression extends Expression<babylon.LogicalExpression> {
@@ -490,10 +509,6 @@ export class LogicalExpression extends Expression<babylon.LogicalExpression> {
       this._right = <Expression<any>>th.convert(this.raw.right, this);
     }
     return this._right;
-  }
-
-  protected replaceChild(source: Node<any>, dest: Node<any>|Node<any>[]) {
-    throw new Error('Unsupported');
   }
 
 }
@@ -527,10 +542,6 @@ export class AssignmentExpression extends Expression<babylon.AssignmentExpressio
     return this._right;
   }
 
-  protected replaceChild(source: Node<any>, dest: Node<any>|Node<any>[]) {
-    throw new Error('Unsupported');
-  }
-
 }
 
 export class ArrayExpression extends Expression<babylon.ArrayExpression> {
@@ -542,10 +553,6 @@ export class ArrayExpression extends Expression<babylon.ArrayExpression> {
       this._elements = this.raw.elements.map(expression => th.convert(expression, this));
     }
     return this._elements;
-  }
-
-  protected replaceChild(source: Node<any>, dest: Node<any>|Node<any>[]) {
-    throw new Error('Unsupported');
   }
 
 }
@@ -603,10 +610,6 @@ export class BinaryExpression extends Expression<babylon.BinaryExpression> {
     return this._right;
   }
 
-  protected replaceChild(source: Node<any>, dest: Node<any>|Node<any>[]) {
-    throw new Error('Unsupported');
-  }
-
 }
 
 export class FunctionExpression extends Expression<babylon.FunctionExpression> {
@@ -645,10 +648,6 @@ export class FunctionExpression extends Expression<babylon.FunctionExpression> {
       this._body = th.convert(this.raw.body, this);
     }
     return this._body;
-  }
-
-  protected replaceChild(source: Node<any>, dest: Node<any>|Node<any>[]) {
-    throw new Error('Unsupported');
   }
 
 }
@@ -700,10 +699,6 @@ export class ArrowFunctionExpression extends Expression<babylon.ArrowFunctionExp
     return this._body;
   }
 
-  protected replaceChild(source: Node<any>, dest: Node<any>|Node<any>[]) {
-    throw new Error('Unsupported');
-  }
-
 }
 
 
@@ -745,10 +740,6 @@ export class FunctionDeclaration extends Expression<babylon.FunctionDeclaration>
     return this._body;
   }
 
-  protected replaceChild(source: Node<any>, dest: Node<any>|Node<any>[]) {
-    throw new Error('Unsupported');
-  }
-
 }
 
 export class CallExpression extends Expression<babylon.CallExpression> {
@@ -771,10 +762,6 @@ export class CallExpression extends Expression<babylon.CallExpression> {
     return this._arguments;
   }
 
-  protected replaceChild(source: Node<any>, dest: Node<any>|Node<any>[]) {
-    throw new Error('Unsupported');
-  }
-
 }
 
 export class MemberExpression extends Expression<babylon.MemberExpression> {
@@ -795,10 +782,6 @@ export class MemberExpression extends Expression<babylon.MemberExpression> {
       this._property = th.convert(this.raw.property, this);
     }
     return this._property;
-  }
-
-  protected replaceChild(source: Node<any>, dest: Node<any>|Node<any>[]) {
-    throw new Error('Unsupported');
   }
 
 }
@@ -832,10 +815,6 @@ export class Literal extends Expression<babylon.Literal> {
   //   return this._raw;
   // }
 
-  protected replaceChild(source: Node<any>, dest: Node<any>|Node<any>[]) {
-    throw new Error('Unsupported');
-  }
-
 }
 
 export class TemplateLiteral extends Expression<babylon.TemplateLiteral> {
@@ -856,10 +835,6 @@ export class TemplateLiteral extends Expression<babylon.TemplateLiteral> {
       this._quasis = this.raw.quasis.map(quasi => <TemplateElement>th.convert(quasi, this));
     }
     return this._quasis;
-  }
-
-  protected replaceChild(source: Node<any>, dest: Node<any>|Node<any>[]) {
-    throw new Error('Unsupported');
   }
 
 }
@@ -884,10 +859,6 @@ export class TemplateElement extends Node<babylon.TemplateElement> {
     return this._tail;
   }
 
-  protected replaceChild(source: Node<any>, dest: Node<any>|Node<any>[]) {
-    throw new Error('Unsupported');
-  }
-
 }
 
 export class Identifier extends Expression<babylon.Identifier> {
@@ -899,10 +870,6 @@ export class Identifier extends Expression<babylon.Identifier> {
       this._name = this.raw.name;
     }
     return this._name;
-  }
-
-  protected replaceChild(source: Node<any>, dest: Node<any>|Node<any>[]) {
-    throw new Error('Unsupported');
   }
 
 }

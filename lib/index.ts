@@ -3,6 +3,7 @@ import * as path from 'path';
 import * as fs from 'fs';
 import * as babylon from 'babylon';
 import './cover';
+import {parse, parseFragment} from './parser';
 import * as types from './types';
 import * as th from './type-helper';
 import {traverse} from './visitor';
@@ -17,9 +18,7 @@ export function instrument(file: string): string {
   let ast = parse(file);
   let statements = [];
   traverse(ast, (node) => {
-    if (node instanceof types.ExpressionStatement
-        || node instanceof types.ReturnStatement
-        || node instanceof types.VariableDeclaration) {
+    if (node.instrumented) {
       statements.push(node.loc.start.line);
     }
   });
@@ -31,72 +30,9 @@ export function instrument(file: string): string {
         __$c.init("${relativeFile}", [${statements}]);
       `);
       node.body[0].insertBefore(fragment);
-    } else if (node instanceof types.ExpressionStatement) {
-      // Guard of own code...
-      const expression = node.expression;
-      if (expression instanceof types.CallExpression) {
-        let expression2: types.Node<any> = expression.callee;
-        while (expression2 instanceof types.MemberExpression) {
-          expression2 = (<types.MemberExpression>expression2).object;
-        }
-        if (expression2 instanceof types.Identifier) {
-          if (expression2.name === '__$c') {
-            return;
-          }
-        }
-      }
-
-      let fragment = <types.ExpressionStatement>parseFragment(`__$c.statement("${relativeFile}", ${node.loc.start.line})`)[0];
-      node.replaceWith(
-        th.expressionStatement(
-          th.sequenceExpression([
-            fragment.expression,
-            node.expression
-          ])
-        )
-      );
-    } else if (node instanceof types.ReturnStatement) {
-      let fragment = <types.ExpressionStatement>parseFragment(`__$c.statement("${relativeFile}", ${node.raw.loc.start.line})`)[0];
-      node.argument.replaceWith(
-        th.sequenceExpression([
-          fragment.expression,
-          node.argument
-        ])
-      );
-    } else if (node instanceof types.VariableDeclaration) {
-      let fragment = <types.ExpressionStatement>parseFragment(`__$c.statement("${relativeFile}", ${node.raw.loc.start.line})`)[0];
-      if (node.parent instanceof types.ForOfStatement) {
-        node.parent.insertBefore(fragment);
-      } else {
-        node.insertBefore(fragment);
-      }
+    } else if (node.instrumented) {
+      node.instrument(relativeFile);
     }
   });
   return toJavaScript(ast);
-}
-
-function parse(file: string): types.File {
-  let code = fs.readFileSync(file).toString();
-  let ast = babylon.parse(code, {
-    sourceType: "module",
-    allowReserved: true,
-    allowReturnOutsideFunction: false,
-    allowImportExportEverywhere: false,
-    plugins: {
-      flow: true
-    }
-  });
-  return <types.File>th.convert(ast, null)
-}
-
-function parseFragment(code: string): types.Node<any>|types.Node<any>[] {
-  return (<types.File>th.convert(babylon.parse(code, {
-    sourceType: "module",
-    allowReserved: true,
-    allowReturnOutsideFunction: false,
-    allowImportExportEverywhere: false,
-    plugins: {
-      flow: true
-    }
-  }), null)).program.body;
 }
