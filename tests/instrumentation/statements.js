@@ -1,3 +1,3 @@
-export function expressionStatement(callback) {
-  callback('Hello World!');
+export function expressionStatement() {
+  console.log('Hello World!');
 }

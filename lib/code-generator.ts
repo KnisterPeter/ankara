@@ -13,6 +13,12 @@ function generateCode(node: types.Node<any>): string {
     return `[${node.elements.map(element => generateCode(element)).join(', ')}]`;
   } else if (node instanceof types.AssignmentExpression) {
     return `${generateCode(node.left)} ${node.operator} ${generateCode(node.right)}`;
+  } else if (node instanceof types.ObjectExpression) {
+    return `{${node.properties.map(property => generateCode(property)).join(', ')}}`;
+  } else if (node instanceof types.UnaryExpression) {
+    return `${node.operator} ${generateCode(node.argument)}`;
+  } else if (node instanceof types.LogicalExpression) {
+    return `${generateCode(node.left)} ${node.operator} ${generateCode(node.right)}`;
   } else if (node instanceof types.BinaryExpression) {
     return `${generateCode(node.left)} ${node.operator} ${generateCode(node.right)}`;
   } else if (node instanceof types.BlockStatement) {
@@ -53,7 +59,7 @@ function generateCode(node: types.Node<any>): string {
     if (otherImports) {
       imports.push(otherImports);
     }
-    return `import ${imports.join(', ')} from ${generateCode(node.source)}\n`;
+    return `import ${imports.join(', ')} from ${generateCode(node.source)};\n`;
   } else if (node instanceof types.ImportDefaultSpecifier) {
     return `${generateCode(node.local)}`;
   } else if (node instanceof types.ImportNamespaceSpecifier) {
@@ -71,7 +77,7 @@ function generateCode(node: types.Node<any>): string {
     return <string>str;
   } else if (node instanceof types.MemberExpression) {
     const property = node.property;
-    if (property instanceof types.Literal) {
+    if (!(property instanceof types.Identifier)) {
       return `${generateCode(node.object)}[${generateCode(property)}]`;
     }
     return `${generateCode(node.object)}.${generateCode(property)}`;
@@ -94,7 +100,8 @@ function generateCode(node: types.Node<any>): string {
       })
       .join('') + '`';
   } else if (node instanceof types.VariableDeclaration) {
-    return `${node.kind} ${node.declarations.map(declaration => generateCode(declaration)).join(', ')}`;
+    const isStatement = !(node.parent instanceof types.ForOfStatement);
+    return `${node.kind} ${node.declarations.map(declaration => generateCode(declaration)).join(', ')}${isStatement ? ';': ''}`;
   } else if (node instanceof types.VariableDeclarator) {
     return `${generateCode(node.id)}${node.init != null ? ` = ${generateCode(node.init)}` : ''}`;
   }

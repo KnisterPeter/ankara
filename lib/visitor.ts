@@ -51,6 +51,13 @@ export function traverse(node: types.Node<any>, fn: (node: types.Node<any>) => v
     // TODO:...
   } else if (node instanceof types.ReturnStatement) {
     node.argument && traverse(node.argument, fn);
+  } else if (node instanceof types.ObjectExpression) {
+    node.properties.forEach(property => traverse(property, fn));
+  } else if (node instanceof types.UnaryExpression) {
+    traverse(node.argument, fn);
+  } else if (node instanceof types.LogicalExpression) {
+    traverse(node.left, fn);
+    traverse(node.right, fn);
   } else if (node instanceof types.BinaryExpression) {
     traverse(node.left, fn);
     traverse(node.right, fn);

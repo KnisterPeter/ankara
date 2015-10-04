@@ -90,6 +90,22 @@ declare module 'babylon' {
   export interface Expression extends Node {
   }
 
+  export interface ObjectExpression extends Expression {
+    properties: Node[];
+  }
+
+  export interface UnaryExpression extends Expression {
+    operator: string;
+    prefix: boolean;
+    argument: Node;
+  }
+
+  export interface LogicalExpression extends Expression {
+    left: Expression;
+    operator: string;
+    right: Expression;
+  }
+
   export interface AssignmentExpression extends Expression {
     operator: string;
     left: Node;

@@ -43,6 +43,12 @@ export function convert(node: any, parent: types.Node<any>): types.Node<any> {
     return new types.Literal(node, parent);
   } else if (isReturnStatement(node)) {
     return new types.ReturnStatement(node, parent);
+  } else if (isObjectExpression(node)) {
+    return new types.ObjectExpression(node, parent);
+  } else if (isUnaryExpression(node)) {
+    return new types.UnaryExpression(node, parent);
+  } else if (isLogicalExpression(node)) {
+    return new types.LogicalExpression(node, parent);
   } else if (isBinaryExpression(node)) {
     return new types.BinaryExpression(node, parent);
   } else if (isVariableDeclaration(node)) {
@@ -188,6 +194,18 @@ export function identifier(name: string) {
 
 function isReturnStatement(node: any): node is babylon.ReturnStatement {
   return node.type == 'ReturnStatement';
+}
+
+function isObjectExpression(node: any): node is babylon.ObjectExpression {
+  return node.type == 'ObjectExpression';
+}
+
+function isUnaryExpression(node: any): node is babylon.UnaryExpression {
+  return node.type == 'UnaryExpression';
+}
+
+function isLogicalExpression(node: any): node is babylon.LogicalExpression {
+  return node.type == 'LogicalExpression';
 }
 
 function isBinaryExpression(node: any): node is babylon.BinaryExpression {

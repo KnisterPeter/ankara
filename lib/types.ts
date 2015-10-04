@@ -411,6 +411,93 @@ export class ForOfStatement extends Statement<babylon.ForOfStatement> {
 export abstract class Expression<T extends babylon.Node> extends Node<T> {
 }
 
+export class ObjectExpression extends Expression<babylon.ObjectExpression> {
+
+  private _properties: Node<any>[];
+
+  get properties() {
+    if (!this._properties) {
+      this._properties = this.raw.properties.map(property => th.convert(property, this));
+    }
+    return this._properties;
+  }
+
+  protected replaceChild(source: Node<any>, dest: Node<any>|Node<any>[]) {
+    throw new Error('Unsupported');
+  }
+
+}
+
+export class UnaryExpression extends Expression<babylon.UnaryExpression> {
+
+  private _operator: string;
+
+  private _prefix: boolean;
+
+  private _argument: Node<any>;
+
+  get operator() {
+    if (!this._operator) {
+      this._operator = this.raw.operator;
+    }
+    return this._operator;
+  }
+
+  get prefix() {
+    if (!this._prefix) {
+      this._prefix = this.raw.prefix;
+    }
+    return this._prefix;
+  }
+
+  get argument() {
+    if (!this._argument) {
+      this._argument = th.convert(this.raw.argument, this);
+    }
+    return this._argument;
+  }
+
+  protected replaceChild(source: Node<any>, dest: Node<any>|Node<any>[]) {
+    throw new Error('Unsupported');
+  }
+
+}
+
+export class LogicalExpression extends Expression<babylon.LogicalExpression> {
+
+  private _left: Expression<any>;
+
+  private _operator: string;
+
+  private _right: Expression<any>;
+
+  get left() {
+    if (!this._left) {
+      this._left = <Expression<any>>th.convert(this.raw.left, this);
+    }
+    return this._left;
+  }
+
+  get operator() {
+    if (!this._operator) {
+      this._operator = this.raw.operator;
+    }
+    return this._operator;
+  }
+
+  get right() {
+    if (!this._right) {
+      this._right = <Expression<any>>th.convert(this.raw.right, this);
+    }
+    return this._right;
+  }
+
+  protected replaceChild(source: Node<any>, dest: Node<any>|Node<any>[]) {
+    throw new Error('Unsupported');
+  }
+
+}
+
 export class AssignmentExpression extends Expression<babylon.AssignmentExpression> {
 
   private _operator: string;
