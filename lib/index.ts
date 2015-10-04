@@ -1,11 +1,9 @@
 /// <reference path="../typings/references.d.ts" />
 import * as path from 'path';
 import * as fs from 'fs';
-import * as babylon from 'babylon';
 import './cover';
 import {parse, parseFragment} from './parser';
 import * as types from './types';
-import * as th from './type-helper';
 import {traverse} from './visitor';
 import './register';
 
