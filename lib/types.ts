@@ -87,6 +87,10 @@ export abstract class Node<T extends babylon.Node> {
     this.parent.replaceChild(this, children);
   }
 
+  public visit(fn: (node: Node<any>) => void): void {
+    throw new Error('Unsupported');
+  }
+
   public toJavaScript(): string {
     throw new Error('Unsupported');
   }
@@ -104,6 +108,11 @@ export class RestElement extends Node<babylon.RestElement> {
     return this._argument;
   }
 
+  public visit(fn: (node: Node<any>) => void): void {
+    fn(this);
+    this.argument.visit(fn);
+  }
+
   public toJavaScript(): string {
     return `...${this.argument.toJavaScript()}`;
   }
@@ -119,6 +128,11 @@ export class File extends Node<babylon.File> {
       this._program = <Program>th.convert(this.raw.program, this);
     }
     return this._program;
+  }
+
+  public visit(fn: (node: Node<any>) => void): void {
+    fn(this);
+    this.program.visit(fn);
   }
 
   public toJavaScript(): string {
@@ -156,6 +170,11 @@ export class Program extends Node<babylon.Program> {
     );
   }
 
+  public visit(fn: (node: Node<any>) => void): void {
+    fn(this);
+    this.body.forEach(statement => statement.visit(fn));
+  }
+
   public toJavaScript(): string {
     return this.body.map(statement => statement.toJavaScript()).join('\n');
   }
@@ -176,6 +195,11 @@ export class ThrowStatement extends Statement<babylon.ThrowStatement> {
     return this._argument;
   }
 
+  public visit(fn: (node: Node<any>) => void): void {
+    fn(this);
+    this.argument.visit(fn);
+  }
+
   public toJavaScript(): string {
     return `throw ${this.argument.toJavaScript()};`;
   }
@@ -191,6 +215,13 @@ export class BreakStatement extends Statement<babylon.BreakStatement> {
       this._label = <Identifier>th.convert(this.raw.label, this);
     }
     return this._label;
+  }
+
+  public visit(fn: (node: Node<any>) => void): void {
+    fn(this);
+    if (this.label) {
+      this.label.visit(fn);
+    }
   }
 
   public toJavaScript(): string {
@@ -219,6 +250,12 @@ export class SwitchStatement extends Statement<babylon.SwitchStatement> {
     return this._cases;
   }
 
+  public visit(fn: (node: Node<any>) => void): void {
+    fn(this);
+    this.discriminant.visit(fn);
+    this.cases.forEach(_case => _case.visit(fn));
+  }
+
   public toJavaScript(): string {
     return `switch (${this.discriminant.toJavaScript()}) { ${this.cases.map(_case => _case.toJavaScript()).join('')} }`;
   }
@@ -243,6 +280,14 @@ export class SwitchCase extends Node<babylon.SwitchCase> {
       this._consequent = this.raw.consequent.map(_case => th.convert(_case, this));
     }
     return this._consequent;
+  }
+
+  public visit(fn: (node: Node<any>) => void): void {
+    fn(this);
+    if (this.test) {
+      this.test.visit(fn);
+    }
+    this.consequent.forEach(consequent => consequent.visit(fn));
   }
 
   public toJavaScript(): string {
@@ -286,6 +331,15 @@ export class IfStatement extends Statement<babylon.IfStatement> {
     return this._alternate;
   }
 
+  public visit(fn: (node: Node<any>) => void): void {
+    fn(this);
+    this.test.visit(fn);
+    this.consequent.visit(fn);
+    if (this.alternate) {
+      this.alternate.visit(fn);
+    }
+  }
+
   public toJavaScript(): string {
     let source = `if (${this.test.toJavaScript()}) ${this.consequent.toJavaScript()}`;
     if (this.alternate) {
@@ -325,6 +379,12 @@ export class ImportDeclaration extends Statement<babylon.ImportDeclaration> {
     return this._source;
   }
 
+  public visit(fn: (node: Node<any>) => void): void {
+    fn(this);
+    this.specifiers.forEach(specifier => specifier.visit(fn));
+    this.source.visit(fn);
+  }
+
   public toJavaScript(): string {
     let imports = [];
     let namedImports = this.specifiers
@@ -357,6 +417,11 @@ export class ImportDefaultSpecifier extends Node<babylon.ImportDefaultSpecifier>
     return this._local;
   }
 
+  public visit(fn: (node: Node<any>) => void): void {
+    fn(this);
+    this.local.visit(fn);
+  }
+
   public toJavaScript(): string {
     return `${this.local.toJavaScript()}`;
   }
@@ -372,6 +437,11 @@ export class ImportNamespaceSpecifier extends Node<babylon.ImportNamespaceSpecif
       this._local = th.convert(this.raw.local, this);
     }
     return this._local;
+  }
+
+  public visit(fn: (node: Node<any>) => void): void {
+    fn(this);
+    this.local.visit(fn);
   }
 
   public toJavaScript(): string {
@@ -400,6 +470,12 @@ export class ImportSpecifier extends Node<babylon.ImportSpecifier> {
     return this._local;
   }
 
+  public visit(fn: (node: Node<any>) => void): void {
+    fn(this);
+    this.imported.visit(fn);
+    this.local.visit(fn);
+  }
+
   public toJavaScript(): string {
     if (this.imported.name == this.local.name) {
       return `${this.imported.toJavaScript()}`;
@@ -420,6 +496,11 @@ export class ExportDefaultDeclaration extends Statement<babylon.ExportDefaultDec
     return this._declaration;
   }
 
+  public visit(fn: (node: Node<any>) => void): void {
+    fn(this);
+    this.declaration.visit(fn);
+  }
+
   public toJavaScript(): string {
     return `export default ${this.declaration.toJavaScript()}\n`;
   }
@@ -435,6 +516,11 @@ export class ExportNamedDeclaration extends Statement<babylon.ExportNamedDeclara
       this._declaration = th.convert(this.raw.declaration, this);
     }
     return this._declaration;
+  }
+
+  public visit(fn: (node: Node<any>) => void): void {
+    fn(this);
+    this.declaration.visit(fn);
   }
 
   public toJavaScript(): string {
@@ -466,6 +552,11 @@ export class BlockStatement extends Statement<babylon.BlockStatement> {
       dest,
       this._body.slice(idx + 1, this._body.length)
     );
+  }
+
+  public visit(fn: (node: Node<any>) => void): void {
+    fn(this);
+    this.body.forEach(statement => statement.visit(fn));
   }
 
   public toJavaScript(): string {
@@ -515,6 +606,11 @@ export class ExpressionStatement extends Statement<babylon.ExpressionStatement> 
     );
   }
 
+  public visit(fn: (node: Node<any>) => void): void {
+    fn(this);
+    this.expression.visit(fn);
+  }
+
   public toJavaScript(): string {
     return `${this.expression.toJavaScript()};\n`;
   }
@@ -553,6 +649,11 @@ export class ReturnStatement extends Statement<babylon.ReturnStatement> {
       (<Node<any>>dest).parent = this;
       this._argument = <Node<any>>dest;
     }
+  }
+
+  public visit(fn: (node: Node<any>) => void): void {
+    fn(this);
+    this.argument && this.argument.visit(fn);
   }
 
   public toJavaScript(): string {
@@ -594,6 +695,11 @@ export class VariableDeclaration extends Statement<babylon.VariableDeclaration> 
     }
   }
 
+  public visit(fn: (node: Node<any>) => void): void {
+    fn(this);
+    this.declarations.forEach(declaration => declaration.visit(fn));
+  }
+
   public toJavaScript(): string {
     const isStatement = !(this.parent instanceof ForOfStatement || this.parent instanceof ForStatement);
     return `${this.kind} ${this.declarations.map(declaration => declaration.toJavaScript()).join(', ')}${isStatement ? ';': ''}`;
@@ -619,6 +725,14 @@ export class VariableDeclarator extends Node<babylon.VariableDeclarator> {
       this._init = th.convert(this.raw.init, this);
     }
     return this._init;
+  }
+
+  public visit(fn: (node: Node<any>) => void): void {
+    fn(this);
+    this.id.visit(fn);
+    if (this.init != null) {
+      this.init.visit(fn);
+    }
   }
 
   public toJavaScript(): string {
@@ -665,6 +779,14 @@ export class ForStatement extends Statement<babylon.ForStatement> {
     return this._body;
   }
 
+  public visit(fn: (node: Node<any>) => void): void {
+    fn(this);
+    this.init.visit(fn);
+    this.test.visit(fn);
+    this.update.visit(fn);
+    this.body.visit(fn);
+  }
+
   public toJavaScript(): string {
     return `for (${this.init.toJavaScript()};${this.test.toJavaScript()};${this.update.toJavaScript()}) ${this.body.toJavaScript()}\n`;
   }
@@ -698,6 +820,13 @@ export class ForOfStatement extends Statement<babylon.ForOfStatement> {
       this._body = th.convert(this.raw.body, this);
     }
     return this._body;
+  }
+
+  public visit(fn: (node: Node<any>) => void): void {
+    fn(this);
+    this.left.visit(fn);
+    this.right.visit(fn);
+    this.body.visit(fn);
   }
 
   public toJavaScript(): string {
@@ -738,6 +867,11 @@ export class UpdateExpression extends Node<babylon.UpdateExpression> {
     return this._argument;
   }
 
+  public visit(fn: (node: Node<any>) => void): void {
+    fn(this);
+    this.argument.visit(fn);
+  }
+
   public toJavaScript(): string {
     return `${this.prefix ? this.operator : ''}${this.argument.toJavaScript()}${!this.prefix ? this.operator : ''}`;
   }
@@ -773,6 +907,13 @@ export class ConditionalExpression extends Node<babylon.ConditionalExpression> {
     return this._alternate;
   }
 
+  public visit(fn: (node: Node<any>) => void): void {
+    fn(this);
+    this.test.visit(fn);
+    this.consequent.visit(fn);
+    this.alternate.visit(fn);
+  }
+
   public toJavaScript(): string {
     return `${this.test.toJavaScript()} ? ${this.consequent.toJavaScript()} : ${this.alternate.toJavaScript()}`;
   }
@@ -780,6 +921,10 @@ export class ConditionalExpression extends Node<babylon.ConditionalExpression> {
 }
 
 export class ThisExpression extends Node<babylon.ThisExpression> {
+
+  public visit(fn: (node: Node<any>) => void): void {
+    fn(this);
+  }
 
   public toJavaScript(): string {
     return 'this';
@@ -807,6 +952,12 @@ export class NewExpression extends Node<babylon.NewExpression> {
     return this._arguments;
   }
 
+  public visit(fn: (node: Node<any>) => void): void {
+    fn(this);
+    this.callee.visit(fn);
+    this.arguments.forEach(argument => argument.visit(fn));
+  }
+
   public toJavaScript(): string {
     return `new ${this.callee.toJavaScript()}(${this.arguments.map(argument => argument.toJavaScript()).join(', ')})`;
   }
@@ -822,6 +973,11 @@ export class ObjectExpression extends Expression<babylon.ObjectExpression> {
       this._properties = this.raw.properties.map(property => <Property>th.convert(property, this));
     }
     return this._properties;
+  }
+
+  public visit(fn: (node: Node<any>) => void): void {
+    fn(this);
+    this.properties.forEach(property => property.visit(fn));
   }
 
   public toJavaScript(): string {
@@ -877,6 +1033,12 @@ export class Property extends Expression<babylon.Property> {
     return this._value;
   }
 
+  public visit(fn: (node: Node<any>) => void): void {
+    fn(this);
+    this.key.visit(fn);
+    this.value.visit(fn);
+  }
+
   public toJavaScript(): string {
     return `${this.key.toJavaScript()}: ${this.value.toJavaScript()}`;
   }
@@ -910,6 +1072,11 @@ export class UnaryExpression extends Expression<babylon.UnaryExpression> {
       this._argument = th.convert(this.raw.argument, this);
     }
     return this._argument;
+  }
+
+  public visit(fn: (node: Node<any>) => void): void {
+    fn(this);
+    this.argument.visit(fn);
   }
 
   public toJavaScript(): string {
@@ -947,6 +1114,12 @@ export class LogicalExpression extends Expression<babylon.LogicalExpression> {
     return this._right;
   }
 
+  public visit(fn: (node: Node<any>) => void): void {
+    fn(this);
+    this.left.visit(fn);
+    this.right.visit(fn);
+  }
+
   public toJavaScript(): string {
     return `${this.left.toJavaScript()} ${this.operator} ${this.right.toJavaScript()}`;
   }
@@ -982,6 +1155,12 @@ export class AssignmentExpression extends Expression<babylon.AssignmentExpressio
     return this._right;
   }
 
+  public visit(fn: (node: Node<any>) => void): void {
+    fn(this);
+    this.left.visit(fn);
+    this.right.visit(fn);
+  }
+
   public toJavaScript(): string {
     return `${this.left.toJavaScript()} ${this.operator} ${this.right.toJavaScript()}`;
   }
@@ -997,6 +1176,11 @@ export class ArrayExpression extends Expression<babylon.ArrayExpression> {
       this._elements = this.raw.elements.map(expression => th.convert(expression, this));
     }
     return this._elements;
+  }
+
+  public visit(fn: (node: Node<any>) => void): void {
+    fn(this);
+    this.elements.forEach(element => element.visit(fn));
   }
 
   public toJavaScript(): string {
@@ -1025,6 +1209,11 @@ export class SequenceExpression extends Expression<babylon.SequenceExpression> {
     }
     children.forEach(node => node.parent = this);
     this._expressions = children;
+  }
+
+  public visit(fn: (node: Node<any>) => void): void {
+    fn(this);
+    this.expressions.forEach(expression => expression.visit(fn));
   }
 
   public toJavaScript(): string {
@@ -1060,6 +1249,12 @@ export class BinaryExpression extends Expression<babylon.BinaryExpression> {
       this._right = th.convert(this.raw.right, this);
     }
     return this._right;
+  }
+
+  public visit(fn: (node: Node<any>) => void): void {
+    fn(this);
+    this.left.visit(fn);
+    this.right.visit(fn);
   }
 
   public toJavaScript(): string {
@@ -1104,6 +1299,13 @@ export class FunctionExpression extends Expression<babylon.FunctionExpression> {
       this._body = th.convert(this.raw.body, this);
     }
     return this._body;
+  }
+
+  public visit(fn: (node: Node<any>) => void): void {
+    fn(this);
+    this.id && this.id.visit(fn);
+    this.params.forEach(param => param.visit(fn));
+    this.body.visit(fn);
   }
 
   public toJavaScript(): string {
@@ -1159,6 +1361,13 @@ export class ArrowFunctionExpression extends Expression<babylon.ArrowFunctionExp
     return this._body;
   }
 
+  public visit(fn: (node: Node<any>) => void): void {
+    fn(this);
+    this.id && this.id.visit(fn);
+    this.params.forEach(param => param.visit(fn));
+    this.body.visit(fn);
+  }
+
   public toJavaScript(): string {
     return `${this.generator ? '*' : ''}(${this.params.map(param => param.toJavaScript()).join(', ')}) => ${this.body.toJavaScript()}`;
   }
@@ -1204,6 +1413,13 @@ export class FunctionDeclaration extends Expression<babylon.FunctionDeclaration>
     return this._body;
   }
 
+  public visit(fn: (node: Node<any>) => void): void {
+    fn(this);
+    this.id && this.id.visit(fn);
+    this.params.forEach(param => param.visit(fn));
+    this.body.visit(fn);
+  }
+
   public toJavaScript(): string {
     return `function${this.generator ? '*' : ''} ${this.id ? this.id.toJavaScript() : ''}(${this.params.map(param => param.toJavaScript()).join(', ')}) ${this.body.toJavaScript()}`;
   }
@@ -1230,6 +1446,12 @@ export class CallExpression extends Expression<babylon.CallExpression> {
     return this._arguments;
   }
 
+  public visit(fn: (node: Node<any>) => void): void {
+    fn(this);
+    this.callee.visit(fn);
+    this.arguments.forEach(arg => arg.visit(fn));
+  }
+
   public toJavaScript(): string {
     return `${this.callee.toJavaScript()}(${this.arguments.map(arg => arg.toJavaScript()).join(', ')})`;
   }
@@ -1254,6 +1476,12 @@ export class MemberExpression extends Expression<babylon.MemberExpression> {
       this._property = th.convert(this.raw.property, this);
     }
     return this._property;
+  }
+
+  public visit(fn: (node: Node<any>) => void): void {
+    fn(this);
+    this.object.visit(fn);
+    this.property.visit(fn);
   }
 
   public toJavaScript(): string {
@@ -1295,6 +1523,10 @@ export class Literal extends Expression<babylon.Literal> {
   //   return this._raw;
   // }
 
+  public visit(fn: (node: Node<any>) => void): void {
+    fn(this);
+  }
+
   public toJavaScript(): string {
     let str = this.value;
     if (typeof str === 'string') {
@@ -1325,6 +1557,13 @@ export class TemplateLiteral extends Expression<babylon.TemplateLiteral> {
       this._quasis = this.raw.quasis.map(quasi => <TemplateElement>th.convert(quasi, this));
     }
     return this._quasis;
+  }
+
+  public visit(fn: (node: Node<any>) => void): void {
+    fn(this);
+    [].concat(this.quasis, this.expressions)
+      .sort((a, b) => a.start - b.start)
+      .forEach(node => node.visit(fn));
   }
 
   public toJavaScript(): string {
@@ -1361,6 +1600,10 @@ export class TemplateElement extends Node<babylon.TemplateElement> {
     return this._tail;
   }
 
+  public visit(fn: (node: Node<any>) => void): void {
+    fn(this);
+  }
+
   public toJavaScript(): string {
     return this.value.raw;
   }
@@ -1376,6 +1619,10 @@ export class Identifier extends Expression<babylon.Identifier> {
       this._name = this.raw.name;
     }
     return this._name;
+  }
+
+  public visit(fn: (node: Node<any>) => void): void {
+    fn(this);
   }
 
   public toJavaScript(): string {
