@@ -87,6 +87,10 @@ export abstract class Node<T extends babylon.Node> {
     this.parent.replaceChild(this, children);
   }
 
+  public toJavaScript(): string {
+    throw new Error('Unsupported');
+  }
+
 }
 
 export class RestElement extends Node<babylon.RestElement> {
@@ -100,6 +104,10 @@ export class RestElement extends Node<babylon.RestElement> {
     return this._argument;
   }
 
+  public toJavaScript(): string {
+    return `...${this.argument.toJavaScript()}`;
+  }
+
 }
 
 export class File extends Node<babylon.File> {
@@ -111,6 +119,10 @@ export class File extends Node<babylon.File> {
       this._program = <Program>th.convert(this.raw.program, this);
     }
     return this._program;
+  }
+
+  public toJavaScript(): string {
+    return this.program.toJavaScript();
   }
 
 }
@@ -144,6 +156,10 @@ export class Program extends Node<babylon.Program> {
     );
   }
 
+  public toJavaScript(): string {
+    return this.body.map(statement => statement.toJavaScript()).join('\n');
+  }
+
 }
 
 export abstract class Statement<T extends babylon.Node> extends Node<T> {
@@ -160,6 +176,10 @@ export class ThrowStatement extends Statement<babylon.ThrowStatement> {
     return this._argument;
   }
 
+  public toJavaScript(): string {
+    return `throw ${this.argument.toJavaScript()};`;
+  }
+
 }
 
 export class BreakStatement extends Statement<babylon.BreakStatement> {
@@ -171,6 +191,10 @@ export class BreakStatement extends Statement<babylon.BreakStatement> {
       this._label = <Identifier>th.convert(this.raw.label, this);
     }
     return this._label;
+  }
+
+  public toJavaScript(): string {
+    return `break ${this.label ? this.label.toJavaScript() : ''};`;
   }
 
 }
@@ -195,6 +219,10 @@ export class SwitchStatement extends Statement<babylon.SwitchStatement> {
     return this._cases;
   }
 
+  public toJavaScript(): string {
+    return `switch (${this.discriminant.toJavaScript()}) { ${this.cases.map(_case => _case.toJavaScript()).join('')} }`;
+  }
+
 }
 
 export class SwitchCase extends Node<babylon.SwitchCase> {
@@ -215,6 +243,16 @@ export class SwitchCase extends Node<babylon.SwitchCase> {
       this._consequent = this.raw.consequent.map(_case => th.convert(_case, this));
     }
     return this._consequent;
+  }
+
+  public toJavaScript(): string {
+    let source;
+    if (this.test === null) {
+      source = `default:\n`;
+    } else {
+      source = `case ${this.test.toJavaScript()}:\n`;
+    }
+    return `${source}${this.consequent.map(consequent => consequent.toJavaScript()).join('\n')}`;
   }
 
 }
@@ -248,6 +286,14 @@ export class IfStatement extends Statement<babylon.IfStatement> {
     return this._alternate;
   }
 
+  public toJavaScript(): string {
+    let source = `if (${this.test.toJavaScript()}) ${this.consequent.toJavaScript()}`;
+    if (this.alternate) {
+      source = `${source} else ${this.alternate.toJavaScript()}`;
+    }
+    return source;
+  }
+
 }
 
 export class ImportDeclaration extends Statement<babylon.ImportDeclaration> {
@@ -279,6 +325,25 @@ export class ImportDeclaration extends Statement<babylon.ImportDeclaration> {
     return this._source;
   }
 
+  public toJavaScript(): string {
+    let imports = [];
+    let namedImports = this.specifiers
+      .filter(specifier => specifier instanceof ImportSpecifier)
+      .map(specifier => specifier.toJavaScript())
+      .join(', ');
+    if (namedImports) {
+      imports.push(`{${namedImports}}`);
+    }
+    let otherImports = this.specifiers
+      .filter(specifier => !(specifier instanceof ImportSpecifier))
+      .map(specifier => specifier.toJavaScript())
+      .join(', ');
+    if (otherImports) {
+      imports.push(otherImports);
+    }
+    return `import ${imports.join(', ')} from ${this.source.toJavaScript()};\n`;
+  }
+
 }
 
 export class ImportDefaultSpecifier extends Node<babylon.ImportDefaultSpecifier> {
@@ -292,6 +357,10 @@ export class ImportDefaultSpecifier extends Node<babylon.ImportDefaultSpecifier>
     return this._local;
   }
 
+  public toJavaScript(): string {
+    return `${this.local.toJavaScript()}`;
+  }
+
 }
 
 export class ImportNamespaceSpecifier extends Node<babylon.ImportNamespaceSpecifier> {
@@ -303,6 +372,10 @@ export class ImportNamespaceSpecifier extends Node<babylon.ImportNamespaceSpecif
       this._local = th.convert(this.raw.local, this);
     }
     return this._local;
+  }
+
+  public toJavaScript(): string {
+    return `* as ${this.local.toJavaScript()}`;
   }
 
 }
@@ -327,6 +400,13 @@ export class ImportSpecifier extends Node<babylon.ImportSpecifier> {
     return this._local;
   }
 
+  public toJavaScript(): string {
+    if (this.imported.name == this.local.name) {
+      return `${this.imported.toJavaScript()}`;
+    }
+    return `${this.imported.toJavaScript()} as ${this.local.toJavaScript()}`;
+  }
+
 }
 
 export class ExportDefaultDeclaration extends Statement<babylon.ExportDefaultDeclaration> {
@@ -340,6 +420,10 @@ export class ExportDefaultDeclaration extends Statement<babylon.ExportDefaultDec
     return this._declaration;
   }
 
+  public toJavaScript(): string {
+    return `export default ${this.declaration.toJavaScript()}\n`;
+  }
+
 }
 
 export class ExportNamedDeclaration extends Statement<babylon.ExportNamedDeclaration> {
@@ -351,6 +435,10 @@ export class ExportNamedDeclaration extends Statement<babylon.ExportNamedDeclara
       this._declaration = th.convert(this.raw.declaration, this);
     }
     return this._declaration;
+  }
+
+  public toJavaScript(): string {
+    return `export ${this.declaration.toJavaScript()}\n`;
   }
 
 }
@@ -378,6 +466,10 @@ export class BlockStatement extends Statement<babylon.BlockStatement> {
       dest,
       this._body.slice(idx + 1, this._body.length)
     );
+  }
+
+  public toJavaScript(): string {
+    return `{\n${this.body.map(statement => statement.toJavaScript()).join('\n')}}\n`;
   }
 
 }
@@ -423,6 +515,10 @@ export class ExpressionStatement extends Statement<babylon.ExpressionStatement> 
     );
   }
 
+  public toJavaScript(): string {
+    return `${this.expression.toJavaScript()};\n`;
+  }
+
 }
 
 export class ReturnStatement extends Statement<babylon.ReturnStatement> {
@@ -457,6 +553,10 @@ export class ReturnStatement extends Statement<babylon.ReturnStatement> {
       (<Node<any>>dest).parent = this;
       this._argument = <Node<any>>dest;
     }
+  }
+
+  public toJavaScript(): string {
+    return `return ${this.argument ? this.argument.toJavaScript() : ''};\n`;
   }
 
 }
@@ -494,6 +594,11 @@ export class VariableDeclaration extends Statement<babylon.VariableDeclaration> 
     }
   }
 
+  public toJavaScript(): string {
+    const isStatement = !(this.parent instanceof ForOfStatement || this.parent instanceof ForStatement);
+    return `${this.kind} ${this.declarations.map(declaration => declaration.toJavaScript()).join(', ')}${isStatement ? ';': ''}`;
+  }
+
 }
 
 export class VariableDeclarator extends Node<babylon.VariableDeclarator> {
@@ -514,6 +619,10 @@ export class VariableDeclarator extends Node<babylon.VariableDeclarator> {
       this._init = th.convert(this.raw.init, this);
     }
     return this._init;
+  }
+
+  public toJavaScript(): string {
+    return `${this.id.toJavaScript()}${this.init != null ? ` = ${this.init.toJavaScript()}` : ''}`;
   }
 
 }
@@ -556,6 +665,10 @@ export class ForStatement extends Statement<babylon.ForStatement> {
     return this._body;
   }
 
+  public toJavaScript(): string {
+    return `for (${this.init.toJavaScript()};${this.test.toJavaScript()};${this.update.toJavaScript()}) ${this.body.toJavaScript()}\n`;
+  }
+
 }
 
 export class ForOfStatement extends Statement<babylon.ForOfStatement> {
@@ -585,6 +698,10 @@ export class ForOfStatement extends Statement<babylon.ForOfStatement> {
       this._body = th.convert(this.raw.body, this);
     }
     return this._body;
+  }
+
+  public toJavaScript(): string {
+    return `for (${this.left.toJavaScript()} of ${this.right.toJavaScript()}) ${this.body.toJavaScript()}\n`;
   }
 
 }
@@ -621,6 +738,10 @@ export class UpdateExpression extends Node<babylon.UpdateExpression> {
     return this._argument;
   }
 
+  public toJavaScript(): string {
+    return `${this.prefix ? this.operator : ''}${this.argument.toJavaScript()}${!this.prefix ? this.operator : ''}`;
+  }
+
 }
 
 export class ConditionalExpression extends Node<babylon.ConditionalExpression> {
@@ -652,9 +773,18 @@ export class ConditionalExpression extends Node<babylon.ConditionalExpression> {
     return this._alternate;
   }
 
+  public toJavaScript(): string {
+    return `${this.test.toJavaScript()} ? ${this.consequent.toJavaScript()} : ${this.alternate.toJavaScript()}`;
+  }
+
 }
 
 export class ThisExpression extends Node<babylon.ThisExpression> {
+
+  public toJavaScript(): string {
+    return 'this';
+  }
+
 }
 
 export class NewExpression extends Node<babylon.NewExpression> {
@@ -677,6 +807,10 @@ export class NewExpression extends Node<babylon.NewExpression> {
     return this._arguments;
   }
 
+  public toJavaScript(): string {
+    return `new ${this.callee.toJavaScript()}(${this.arguments.map(argument => argument.toJavaScript()).join(', ')})`;
+  }
+
 }
 
 export class ObjectExpression extends Expression<babylon.ObjectExpression> {
@@ -688,6 +822,10 @@ export class ObjectExpression extends Expression<babylon.ObjectExpression> {
       this._properties = this.raw.properties.map(property => <Property>th.convert(property, this));
     }
     return this._properties;
+  }
+
+  public toJavaScript(): string {
+    return `{${this.properties.map(property => property.toJavaScript()).join(', ')}}`;
   }
 
 }
@@ -739,6 +877,10 @@ export class Property extends Expression<babylon.Property> {
     return this._value;
   }
 
+  public toJavaScript(): string {
+    return `${this.key.toJavaScript()}: ${this.value.toJavaScript()}`;
+  }
+
 }
 
 export class UnaryExpression extends Expression<babylon.UnaryExpression> {
@@ -768,6 +910,10 @@ export class UnaryExpression extends Expression<babylon.UnaryExpression> {
       this._argument = th.convert(this.raw.argument, this);
     }
     return this._argument;
+  }
+
+  public toJavaScript(): string {
+    return `${this.operator} ${this.argument.toJavaScript()}`;
   }
 
 }
@@ -801,6 +947,10 @@ export class LogicalExpression extends Expression<babylon.LogicalExpression> {
     return this._right;
   }
 
+  public toJavaScript(): string {
+    return `${this.left.toJavaScript()} ${this.operator} ${this.right.toJavaScript()}`;
+  }
+
 }
 
 export class AssignmentExpression extends Expression<babylon.AssignmentExpression> {
@@ -832,6 +982,10 @@ export class AssignmentExpression extends Expression<babylon.AssignmentExpressio
     return this._right;
   }
 
+  public toJavaScript(): string {
+    return `${this.left.toJavaScript()} ${this.operator} ${this.right.toJavaScript()}`;
+  }
+
 }
 
 export class ArrayExpression extends Expression<babylon.ArrayExpression> {
@@ -843,6 +997,10 @@ export class ArrayExpression extends Expression<babylon.ArrayExpression> {
       this._elements = this.raw.elements.map(expression => th.convert(expression, this));
     }
     return this._elements;
+  }
+
+  public toJavaScript(): string {
+    return `[${this.elements.map(element => element.toJavaScript()).join(', ')}]`;
   }
 
 }
@@ -867,6 +1025,10 @@ export class SequenceExpression extends Expression<babylon.SequenceExpression> {
     }
     children.forEach(node => node.parent = this);
     this._expressions = children;
+  }
+
+  public toJavaScript(): string {
+    return `(${this.expressions.map(expression => expression.toJavaScript()).join(', ')})`;
   }
 
 }
@@ -898,6 +1060,10 @@ export class BinaryExpression extends Expression<babylon.BinaryExpression> {
       this._right = th.convert(this.raw.right, this);
     }
     return this._right;
+  }
+
+  public toJavaScript(): string {
+    return `${this.left.toJavaScript()} ${this.operator} ${this.right.toJavaScript()}`;
   }
 
 }
@@ -938,6 +1104,10 @@ export class FunctionExpression extends Expression<babylon.FunctionExpression> {
       this._body = th.convert(this.raw.body, this);
     }
     return this._body;
+  }
+
+  public toJavaScript(): string {
+    return `function${this.generator ? '*' : ''} ${this.id ? this.id.toJavaScript() : ''}(${this.params.map(param => param.toJavaScript()).join(', ')}) ${this.body.toJavaScript()}`;
   }
 
 }
@@ -989,6 +1159,10 @@ export class ArrowFunctionExpression extends Expression<babylon.ArrowFunctionExp
     return this._body;
   }
 
+  public toJavaScript(): string {
+    return `${this.generator ? '*' : ''}(${this.params.map(param => param.toJavaScript()).join(', ')}) => ${this.body.toJavaScript()}`;
+  }
+
 }
 
 
@@ -1030,6 +1204,10 @@ export class FunctionDeclaration extends Expression<babylon.FunctionDeclaration>
     return this._body;
   }
 
+  public toJavaScript(): string {
+    return `function${this.generator ? '*' : ''} ${this.id ? this.id.toJavaScript() : ''}(${this.params.map(param => param.toJavaScript()).join(', ')}) ${this.body.toJavaScript()}`;
+  }
+
 }
 
 export class CallExpression extends Expression<babylon.CallExpression> {
@@ -1052,6 +1230,10 @@ export class CallExpression extends Expression<babylon.CallExpression> {
     return this._arguments;
   }
 
+  public toJavaScript(): string {
+    return `${this.callee.toJavaScript()}(${this.arguments.map(arg => arg.toJavaScript()).join(', ')})`;
+  }
+
 }
 
 export class MemberExpression extends Expression<babylon.MemberExpression> {
@@ -1072,6 +1254,14 @@ export class MemberExpression extends Expression<babylon.MemberExpression> {
       this._property = th.convert(this.raw.property, this);
     }
     return this._property;
+  }
+
+  public toJavaScript(): string {
+    const property = this.property;
+    if (!(property instanceof Identifier)) {
+      return `${this.object.toJavaScript()}[${property.toJavaScript()}]`;
+    }
+    return `${this.object.toJavaScript()}.${property.toJavaScript()}`;
   }
 
 }
@@ -1105,6 +1295,16 @@ export class Literal extends Expression<babylon.Literal> {
   //   return this._raw;
   // }
 
+  public toJavaScript(): string {
+    let str = this.value;
+    if (typeof str === 'string') {
+      str = "'" + (<string>str).replace(/'/g, "\\'") + "'";
+    } else if (this.value === null) {
+      str = 'null';
+    }
+    return <string>str;
+  }
+
 }
 
 export class TemplateLiteral extends Expression<babylon.TemplateLiteral> {
@@ -1125,6 +1325,18 @@ export class TemplateLiteral extends Expression<babylon.TemplateLiteral> {
       this._quasis = this.raw.quasis.map(quasi => <TemplateElement>th.convert(quasi, this));
     }
     return this._quasis;
+  }
+
+  public toJavaScript(): string {
+    return '`' + ([].concat(this.quasis, this.expressions))
+      .sort((a, b) => a.start - b.start)
+      .map(node => {
+        if (!(node instanceof TemplateElement)) {
+          return '${' + node.toJavaScript() + '}';
+        }
+        return node.toJavaScript();
+      })
+      .join('') + '`';
   }
 
 }
@@ -1149,6 +1361,10 @@ export class TemplateElement extends Node<babylon.TemplateElement> {
     return this._tail;
   }
 
+  public toJavaScript(): string {
+    return this.value.raw;
+  }
+
 }
 
 export class Identifier extends Expression<babylon.Identifier> {
@@ -1160,6 +1376,10 @@ export class Identifier extends Expression<babylon.Identifier> {
       this._name = this.raw.name;
     }
     return this._name;
+  }
+
+  public toJavaScript(): string {
+    return this.name;
   }
 
 }
