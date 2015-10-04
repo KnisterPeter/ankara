@@ -7,10 +7,12 @@
     "start": "npm run typescript && npm run babel",
     "typescript": "tsc --outDir temp",
     "babel": "babel --out-dir dist temp",
-    "test": "npm start && ./tests/run.js |faucet",
-    "watch": "npm run typescript-watch & npm run babel-watch",
+    "test": "npm start && npm run test-exec",
+    "test-exec": "./tests/run.js |faucet",
+    "watch": "npm run typescript-watch & npm run babel-watch & npm run test-watch",
     "typescript-watch": "npm run typescript -- --watch",
     "babel-watch": "npm run babel -- --watch",
+    "test-watch": "chokidar 'dist/**/*.js' 'tests/**/*' --debounce 800 --command 'npm run test-exec'",
     "clean": "rm -rf dist temp"
   },
   "author": {
@@ -28,6 +30,7 @@
   },
   "devDependencies": {
     "babel": "5.8.23",
+    "chokidar-cli": "1.0.1",
     "faucet": "0.0.1",
     "glob": "5.0.15",
     "tape": "4.2.1",
