@@ -18,6 +18,10 @@ declare module 'babylon' {
     loc: SourceLocation;
   }
 
+  export interface RestElement extends Node {
+    argument: Identifier;
+  }
+
   export interface File extends Node {
     program: Program;
   }
@@ -28,6 +32,30 @@ declare module 'babylon' {
   }
 
   export interface Statement extends Node {
+  }
+
+  export interface ThrowStatement extends Statement {
+    argument: Expression;
+  }
+
+  export interface BreakStatement extends Statement {
+    label: Identifier;
+  }
+
+  export interface SwitchStatement extends Statement {
+    discriminant: Expression;
+    cases: SwitchCase[];
+  }
+
+  export interface SwitchCase extends Node {
+    test: Node;
+    consequent: Statement[];
+  }
+
+  export interface IfStatement extends Statement {
+    test: Expression;
+    consequent: Statement;
+    alternate: Statement;
   }
 
   export interface ImportDeclaration extends Statement {
@@ -58,40 +86,75 @@ declare module 'babylon' {
     source: any;
     declaration: Node;
   }
-  
+
   export interface BlockStatement extends Statement {
     body: Statement[];
   }
-  
+
   export interface ExpressionStatement extends Statement {
     expression: Expression;
   }
-  
+
   export interface ReturnStatement extends Statement {
     argument: Expression;
   }
-  
+
   export interface VariableDeclaration extends Statement {
     kind: string;
     declarations: VariableDeclarator[];
   }
-  
+
   export interface VariableDeclarator extends Node {
     id: Identifier;
     init: Expression;
   }
-  
+
+  export interface ForStatement extends Statement {
+    init: Node;
+    test: Expression;
+    update: Expression;
+    body: Statement;
+  }
+
   export interface ForOfStatement extends Statement {
     left: Node;
     right: Node;
     body: Statement;
   }
-  
+
   export interface Expression extends Node {
   }
 
+  export interface UpdateExpression extends Expression {
+    operator: string;
+    prefix: boolean;
+    argument: Identifier;
+  }
+
+  export interface ConditionalExpression extends Expression {
+    test: Expression;
+    consequent: Expression;
+    alternate: Expression;
+  }
+
+  export interface ThisExpression extends Expression {
+  }
+
+  export interface NewExpression extends Expression {
+    callee: Node;
+    arguments: Identifier[];
+  }
+
   export interface ObjectExpression extends Expression {
-    properties: Node[];
+    properties: Property[];
+  }
+
+  export interface Property extends Expression {
+    method: boolean;
+    shorthand: boolean;
+    computed: boolean;
+    key: Identifier;
+    value: Node;
   }
 
   export interface UnaryExpression extends Expression {

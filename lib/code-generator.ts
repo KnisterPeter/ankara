@@ -11,12 +11,42 @@ export default function toJavaScript(ast: types.Node<any>): string {
 function generateCode(node: types.Node<any>): string {
   if (node instanceof types.ArrayExpression) {
     return `[${node.elements.map(element => generateCode(element)).join(', ')}]`;
+  } else if (node instanceof types.ThrowStatement) {
+    return `throw ${generateCode(node.argument)};`;
+  } else if (node instanceof types.BreakStatement) {
+    return `break ${node.label ? generateCode(node.label) : ''};`;
+  } else if (node instanceof types.SwitchStatement) {
+    return `switch (${generateCode(node.discriminant)}) { ${node.cases.map(_case => generateCode(_case)).join('')} }`;
+  } else if (node instanceof types.SwitchCase) {
+    let source;
+    if (node.test === null) {
+      source = `default:\n`;
+    } else {
+      source = `case ${generateCode(node.test)}:\n`;
+    }
+    return `${source}${node.consequent.map(consequent => generateCode(consequent)).join('\n')}`;
+  } else if (node instanceof types.IfStatement) {
+    let source = `if (${generateCode(node.test)}) ${generateCode(node.consequent)}`;
+    if (node.alternate) {
+      source = `${source} else ${generateCode(node.alternate)}`;
+    }
+    return source;
   } else if (node instanceof types.AssignmentExpression) {
     return `${generateCode(node.left)} ${node.operator} ${generateCode(node.right)}`;
+  } else if (node instanceof types.ThisExpression) {
+    return 'this';
+  } else if (node instanceof types.NewExpression) {
+    return `new ${generateCode(node.callee)}(${node.arguments.map(argument => generateCode(argument)).join(', ')})`;
   } else if (node instanceof types.ObjectExpression) {
     return `{${node.properties.map(property => generateCode(property)).join(', ')}}`;
+  } else if (node instanceof types.Property) {
+    return `${generateCode(node.key)}: ${generateCode(node.value)}`;
   } else if (node instanceof types.UnaryExpression) {
     return `${node.operator} ${generateCode(node.argument)}`;
+  } else if (node instanceof types.UpdateExpression) {
+    return `${node.prefix ? node.operator : ''}${generateCode(node.argument)}${!node.prefix ? node.operator : ''}`;
+  } else if (node instanceof types.ConditionalExpression) {
+    return `${generateCode(node.test)} ? ${generateCode(node.consequent)} : ${generateCode(node.alternate)}`;
   } else if (node instanceof types.LogicalExpression) {
     return `${generateCode(node.left)} ${node.operator} ${generateCode(node.right)}`;
   } else if (node instanceof types.BinaryExpression) {
@@ -31,8 +61,12 @@ function generateCode(node: types.Node<any>): string {
     return `export ${generateCode(node.declaration)}\n`;
   } else if (node instanceof types.ExpressionStatement) {
     return `${generateCode(node.expression)};\n`;
+  } else if (node instanceof types.RestElement) {
+    return `...${generateCode(node.argument)}`;
   } else if (node instanceof types.File) {
     return generateCode(node.program);
+  } else if (node instanceof types.ForStatement) {
+    return `for (${generateCode(node.init)};${generateCode(node.test)};${generateCode(node.update)}) ${generateCode(node.body)}\n`;
   } else if (node instanceof types.ForOfStatement) {
     return `for (${generateCode(node.left)} of ${generateCode(node.right)}) ${generateCode(node.body)}\n`;
   } else if (node instanceof types.FunctionDeclaration) {
@@ -72,7 +106,9 @@ function generateCode(node: types.Node<any>): string {
   } else if (node instanceof types.Literal) {
     let str = node.value;
     if (typeof str === 'string') {
-      str = "'" + (<string>str).replace(/'/g, '\'') + "'";
+      str = "'" + (<string>str).replace(/'/g, "\\'") + "'";
+    } else if (node.value === null) {
+      str = 'null';
     }
     return <string>str;
   } else if (node instanceof types.MemberExpression) {
@@ -100,7 +136,7 @@ function generateCode(node: types.Node<any>): string {
       })
       .join('') + '`';
   } else if (node instanceof types.VariableDeclaration) {
-    const isStatement = !(node.parent instanceof types.ForOfStatement);
+    const isStatement = !(node.parent instanceof types.ForOfStatement || node.parent instanceof types.ForStatement);
     return `${node.kind} ${node.declarations.map(declaration => generateCode(declaration)).join(', ')}${isStatement ? ';': ''}`;
   } else if (node instanceof types.VariableDeclarator) {
     return `${generateCode(node.id)}${node.init != null ? ` = ${generateCode(node.init)}` : ''}`;
