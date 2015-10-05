@@ -10,12 +10,15 @@ let oldHandlers = {};
 let cwd = process.cwd();
 
 function isIgnored(filename) {
-  return relative(cwd, filename).split(sep).indexOf("node_modules") >= 0;
+  // TODO: Add filters
+  const parts = relative(cwd, filename).split(sep);
+  return parts.indexOf("node_modules") >= 0
+    || parts.indexOf('dist') > -1 && parts.indexOf('cover.js') > -1;
 }
 
 function loader(m, filename: string, old) {
-  let instr = instrument(filename);
   // console.log(`-- ${filename} -------------------------------`);
+  let instr = instrument(filename);
   // console.log(instr);
   // console.log('---------------------------------');
   let instrumentedFilename = join(process.cwd(), 'coverage', relative(process.cwd(), filename));

@@ -3,11 +3,11 @@ import {join} from 'path';
 import {sync as mkdirp} from 'mkdirp';
 import {readFileSync, writeFileSync} from 'fs';
 
-interface CoverageData {
+export interface CoverageData {
   [file: string]: FileCoverageData;
 }
 
-interface FileCoverageData {
+export interface FileCoverageData {
   statements: number[];
   lines: number[];
 }
