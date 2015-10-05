@@ -688,7 +688,9 @@ export class VariableDeclaration extends Statement<babylon.VariableDeclaration> 
 
   public instrument(path: string): void {
     let fragment = <ExpressionStatement>parseFragment(`__$c.statement("${path}", ${this.loc.start.line})`)[0];
-    if (this.parent instanceof ForOfStatement || this.parent instanceof ForStatement) {
+    if (this.parent instanceof ForOfStatement
+        || this.parent instanceof ForStatement
+        || this.parent instanceof ExportNamedDeclaration) {
       this.parent.insertBefore(fragment);
     } else {
       this.insertBefore(fragment);

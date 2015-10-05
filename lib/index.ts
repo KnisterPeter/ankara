@@ -1,4 +1,5 @@
 /// <reference path="../typings/references.d.ts" />
+import 'source-map-support/register';
 import * as path from 'path';
 import * as fs from 'fs';
 import './cover';

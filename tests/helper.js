@@ -6,3 +6,7 @@ export function loadCoverageData(file) {
   const coverageData = JSON.parse(readFileSync(dataPath).toString());
   return coverageData[Object.keys(coverageData).find(key => key === file)];
 }
+
+export function containsLine(lines, line) {
+  return lines.indexOf(line) > -1;
+}

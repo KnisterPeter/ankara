@@ -6,7 +6,7 @@
   "scripts": {
     "start": "npm run typescript && npm run babel",
     "typescript": "tsc --outDir temp",
-    "babel": "babel --out-dir dist temp",
+    "babel": "babel --source-maps=inline --out-dir dist temp",
     "test": "npm start && npm run test-exec",
     "test-exec": "./tests/run.js |faucet",
     "watch": "npm run typescript-watch & npm run babel-watch & npm run test-watch",
@@ -38,6 +38,7 @@
   },
   "dependencies": {
     "babylon": "5.8.23",
-    "mkdirp": "0.5.1"
+    "mkdirp": "0.5.1",
+    "source-map-support": "^0.3.2"
   }
 }

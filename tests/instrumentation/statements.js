@@ -5,3 +5,7 @@ export function expressionStatement() {
 export function returnStatement() {
   return 'Hello World!';
 }
+
+export let arrowFunctionWithExpressionStatement = () => {
+  console.log('Hello World!');
+}
