@@ -32,12 +32,13 @@
     "babel": "5.8.23",
     "chokidar-cli": "1.0.1",
     "faucet": "0.0.1",
-    "glob": "5.0.15",
+    "glob": "^5.0.15",
     "tape": "4.2.1",
     "typescript": "1.6.2"
   },
   "dependencies": {
     "babylon": "5.8.23",
+    "globby": "^3.0.1",
     "mkdirp": "0.5.1",
     "source-map-support": "^0.3.2"
   }

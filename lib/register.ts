@@ -1,19 +1,21 @@
 /// <reference path="../typings/references.d.ts" />
 import {join, relative, sep, dirname} from 'path';
-import {writeFileSync} from 'fs';
+import {writeFileSync, readFileSync} from 'fs';
 import {sync as mkdirp} from 'mkdirp';
-import {instrument} from './index';
+import * as globby from 'globby';
+import {instrument} from './index'; 
 
-const exts = ['.js'];
-
+const cwd = process.cwd();
+const config = JSON.parse(readFileSync(join(cwd, '.ankara.json')).toString());
+const exts = config.extensions || ['.js'];
+const files: string[] = globby.sync(<string[]>config.files);
 let oldHandlers = {};
-let cwd = process.cwd();
 
-function isIgnored(filename) {
-  // TODO: Add filters
-  const parts = relative(cwd, filename).split(sep);
-  return parts.indexOf("node_modules") >= 0
-    || parts.indexOf('dist') > -1 && parts.indexOf('cover.js') > -1;
+console.log(files);
+
+function isCovered(filename) {
+  const relFile = `.${sep}${relative(cwd, filename)}`;
+  return files.indexOf(relFile) > -1;
 }
 
 function loader(m, filename: string, old) {
@@ -31,10 +33,10 @@ function registerExtension(ext: string) {
   var old = oldHandlers[ext] || oldHandlers[".js"] || require.extensions[".js"];
 
   require.extensions[ext] = function(m, filename) {
-    if (isIgnored(filename)) {
-      old(m, filename);
-    } else {
+    if (isCovered(filename)) {
       loader(m, filename, old);
+    } else {
+      old(m, filename);
     }
   };
 };

@@ -1,10 +1,11 @@
 /// <reference path="../typings/references.d.ts" />
-import * as types from './types';
 import {readFileSync} from 'fs';
 import * as babylon from 'babylon';
 import {convert} from './type-helper';
+import {File} from './types/file';
+import {Node} from './types/node';
 
-export function parse(file: string): types.File {
+export function parse(file: string): File {
   let code = readFileSync(file).toString();
   let ast = babylon.parse(code, {
     sourceType: "module",
@@ -15,11 +16,11 @@ export function parse(file: string): types.File {
       flow: true
     }
   });
-  return <types.File>convert(ast, null)
+  return <File>convert(ast, null)
 }
 
-export function parseFragment(code: string): types.Node<any>|types.Node<any>[] {
-  return (<types.File>convert(babylon.parse(code, {
+export function parseFragment(code: string): Node<any>|Node<any>[] {
+  return (<File>convert(babylon.parse(code, {
     sourceType: "module",
     allowReserved: true,
     allowReturnOutsideFunction: false,

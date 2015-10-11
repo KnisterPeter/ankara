@@ -4,8 +4,10 @@ import {join, relative} from 'path';
 import {existsSync, readFileSync, writeFileSync} from 'fs';
 import {CoverageData, FileCoverageData} from './cover';
 import {parse, parseFragment} from './parser';
-import * as types from './types';
 import './register';
+
+import {Program} from './types/program';
+import {ImportDeclaration} from './types/import-declaration';
 
 let devCover = join(__dirname, 'cover.js');
 let devMode = existsSync(devCover);
@@ -20,9 +22,9 @@ export function instrument(file: string): string {
     }
   });
   ast.visit(node => {
-    if (node instanceof types.Program) {
+    if (node instanceof Program) {
       let coverLib = devMode ? devCover : 'ankara/dist/cover';
-      let fragment = <types.ImportDeclaration>parseFragment(`
+      let fragment = <ImportDeclaration>parseFragment(`
         import {cover as __$c} from '${coverLib}';
         __$c.init("${relativeFile}", [${statements}]);
       `);

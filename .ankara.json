@@ -1,0 +1,11 @@
+{
+  "extensions": [
+    ".js"
+  ],
+  "files": [
+    "!**/node_modules/**",
+    "./tests/**/*.js",
+    "!./tests/**/*-test.js",
+    "!./tests/*.js"
+  ]
+}
