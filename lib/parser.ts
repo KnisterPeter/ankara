@@ -19,7 +19,7 @@ export function parse(file: string): File {
   return <File>convert(ast, null)
 }
 
-export function parseFragment(code: string): Node<any>|Node<any>[] {
+export function parseFragment(code: string): Node<any>[] {
   return (<File>convert(babylon.parse(code, {
     sourceType: "module",
     allowReserved: true,

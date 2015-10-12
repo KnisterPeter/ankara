@@ -4,7 +4,6 @@ import {join, relative} from 'path';
 import {existsSync, readFileSync, writeFileSync} from 'fs';
 import {CoverageData, FileCoverageData} from './cover';
 import {parse, parseFragment} from './parser';
-import './register';
 
 import {Program} from './types/program';
 import {ImportDeclaration} from './types/import-declaration';
@@ -24,7 +23,7 @@ export function instrument(file: string): string {
   ast.visit(node => {
     if (node instanceof Program) {
       let coverLib = devMode ? devCover : 'ankara/dist/cover';
-      let fragment = <ImportDeclaration>parseFragment(`
+      let fragment = parseFragment(`
         import {cover as __$c} from '${coverLib}';
         __$c.init("${relativeFile}", [${statements}]);
       `);

@@ -3,6 +3,10 @@
   "version": "0.2.0",
   "description": "Code coverage tool leveraging babylon to cover es6/es7 and strawman proposals",
   "main": "dist/index.js",
+  "bin": {
+    "instrument": "bin/instrument.js",
+    "lcov": "bin/lcov.js"
+  },
   "scripts": {
     "start": "npm run typescript && npm run babel",
     "typescript": "tsc --outDir temp",
@@ -39,6 +43,7 @@
   "dependencies": {
     "babylon": "5.8.23",
     "globby": "^3.0.1",
+    "minimist": "^1.2.0",
     "mkdirp": "0.5.1",
     "source-map-support": "^0.3.2"
   }

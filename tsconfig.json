@@ -5,6 +5,8 @@
 		"experimentalAsyncFunctions": true
 	},
 	"files": [
-		"lib/index"
+		"lib/index",
+    "lib/register",
+    "lib/cli"
 	]
 }
