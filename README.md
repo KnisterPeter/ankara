@@ -7,3 +7,47 @@
 [![npm version](https://img.shields.io/npm/v/ankara-coverage.svg)](https://www.npmjs.com/package/ankara-coverage)
 
 Code coverage tool leveraging babylon to cover es6/es7 and strawman proposals.
+
+# Usage
+
+## Installation
+Install as npm package:
+
+```Shell
+npm install ankara --save-dev
+```
+
+## Configuration
+ankara is reading its configuration from an optional '.ankara.json' file in your project root.
+```
+{
+  "extensions": [
+    ".js"
+  ],
+  "files": [
+    "!**/node_modules/**"
+  ]
+}
+```
+
+## Execution
+There are two steps required.
+
+First instrumenting your code:
+```Shell
+./node_modules/.bin/instrument.js
+```
+
+Second generating lcov report:
+```Shell
+./node_modules/.bin/lcov.js
+```
+
+The instrumentation step could be done automatically with the provided require hook.
+Just import (or require) the register file from ankara.
+```JavaScript
+import 'ankara/dist/register';
+```
+
+Note: The register task is compatible with other register tasks but must be required as last step.
+This will then replace the previous registered tasks and execute them after instrumentation (e.g. babeljs/register).
