@@ -3,6 +3,7 @@ import {Expression} from './expression';
 import {Node} from './node';
 import {Identifier} from './identifier';
 import {Statement} from './statement';
+import {MethodDefinition} from './method-definition';
 import * as th from '../type-helper';
 
 export class FunctionExpression extends Expression<babylon.FunctionExpression> {
@@ -51,7 +52,10 @@ export class FunctionExpression extends Expression<babylon.FunctionExpression> {
   }
 
   public toJavaScript(): string {
-    return `function${this.generator ? '*' : ''} ${this.id ? this.id.toJavaScript() : ''}(${this.params.map(param => param.toJavaScript()).join(', ')}) ${this.body.toJavaScript()}`;
+    const keyword = this.parent instanceof MethodDefinition
+      ? ''
+      : `function${this.generator ? '*' : ''}`;
+    return `${keyword} ${this.id ? this.id.toJavaScript() : ''}(${this.params.map(param => param.toJavaScript()).join(', ')}) ${this.body.toJavaScript()}`;
   }
 
 }

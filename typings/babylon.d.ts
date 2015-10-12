@@ -242,4 +242,21 @@ declare module 'babylon' {
   export interface Identifier extends Expression {
     name: string;
   }
+
+  export interface ClassDeclaration extends Node {
+    id: Identifier;
+    superClass: Node;
+    body: ClassBody;
+  }
+
+  export interface ClassBody extends Node {
+    body: Node[];
+  }
+
+  export interface MethodDefinition extends Node {
+    key: Identifier;
+    static: boolean;
+    kind: string;
+    value: Expression;
+  }
 }
