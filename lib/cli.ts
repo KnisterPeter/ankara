@@ -6,7 +6,7 @@ import {join, relative, dirname} from 'path';
 import {readFileSync, writeFileSync} from 'fs';
 import {instrument, generateLcov} from './index';
 
-export default function(argv) {
+export default function(argv: string[]) {
   const cwd = process.cwd();
   const config = JSON.parse(readFileSync(join(cwd, '.ankara.json')).toString());
   
