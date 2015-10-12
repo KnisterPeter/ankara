@@ -13,7 +13,7 @@ Code coverage tool leveraging babylon to cover es6/es7 and strawman proposals.
 ## Installation
 Install as npm package:
 
-```Shell
+```sh
 npm install ankara --save-dev
 ```
 
@@ -34,18 +34,18 @@ ankara is reading its configuration from an optional '.ankara.json' file in your
 There are two steps required.
 
 First instrumenting your code:
-```Shell
+```sh
 ./node_modules/.bin/instrument.js
 ```
 
 Second generating lcov report:
-```Shell
+```sh
 ./node_modules/.bin/lcov.js
 ```
 
 The instrumentation step could be done automatically with the provided require hook.
 Just import (or require) the register file from ankara.
-```JavaScript
+```js
 import 'ankara/dist/register';
 ```
 
