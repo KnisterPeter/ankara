@@ -9,6 +9,10 @@ export class FunctionDeclaration extends Expression<babylon.FunctionDeclaration>
 
   private _generator: boolean;
 
+  private _expression: boolean;
+
+  private _async: boolean;
+
   private _id: Identifier;
   
   private _params: Identifier[];
@@ -20,6 +24,20 @@ export class FunctionDeclaration extends Expression<babylon.FunctionDeclaration>
       this._generator = this.raw.generator;
     }
     return this._generator;
+  }
+
+  get expression() {
+    if (typeof this._expression == 'undefined') {
+      this._expression = this.raw.expression;
+    }
+    return this._expression;
+  }
+
+  get async() {
+    if (typeof this._async == 'undefined') {
+      this._async = this.raw.async;
+    }
+    return this._async;
   }
 
   get id() {
@@ -51,7 +69,7 @@ export class FunctionDeclaration extends Expression<babylon.FunctionDeclaration>
   }
 
   public toJavaScript(): string {
-    return `function${this.generator ? '*' : ''} ${this.id ? this.id.toJavaScript() : ''}(${this.params.map(param => param.toJavaScript()).join(', ')}) ${this.body.toJavaScript()}`;
+    return `${this.async ? 'async': ''} function${this.generator ? '*' : ''} ${this.id ? this.id.toJavaScript() : ''}(${this.params.map(param => param.toJavaScript()).join(', ')}) ${this.body.toJavaScript()}`;
   }
 
 }

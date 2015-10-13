@@ -190,10 +190,11 @@ declare module 'babylon' {
   }
 
   export interface FunctionExpression extends Expression {
-    id: Node;
+    id: Identifier;
     generator: boolean;
     expression: boolean;
-    params: any[];
+    async: boolean;
+    params: Identifier[];
     body: BlockStatement;
   }
 
@@ -206,10 +207,11 @@ declare module 'babylon' {
   }
 
   export interface FunctionDeclaration extends Expression {
-    id: Node;
+    id: Identifier;
     generator: boolean;
     expression: boolean;
-    params: any[];
+    async: boolean;
+    params: Identifier[];
     body: BlockStatement;
   }
 
@@ -268,5 +270,10 @@ declare module 'babylon' {
     key: Identifier;
     static: boolean;
     value: Node;
+  }
+
+  export interface AwaitExpression extends Expression {
+    all: boolean;
+    argument: Expression;
   }
 }

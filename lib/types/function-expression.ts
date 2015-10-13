@@ -10,6 +10,10 @@ export class FunctionExpression extends Expression<babylon.FunctionExpression> {
 
   private _generator: boolean;
 
+  private _expression: boolean;
+
+  private _async: boolean;
+
   private _id: Identifier;
   
   private _params: Identifier[];
@@ -21,6 +25,20 @@ export class FunctionExpression extends Expression<babylon.FunctionExpression> {
       this._generator = this.raw.generator;
     }
     return this._generator;
+  }
+
+  get expression() {
+    if (typeof this._expression == 'undefined') {
+      this._expression = this.raw.expression;
+    }
+    return this._expression;
+  }
+
+  get async() {
+    if (typeof this._async == 'undefined') {
+      this._async = this.raw.async;
+    }
+    return this._async;
   }
 
   get id() {
@@ -55,7 +73,7 @@ export class FunctionExpression extends Expression<babylon.FunctionExpression> {
     const keyword = this.parent instanceof MethodDefinition
       ? ''
       : `function${this.generator ? '*' : ''}`;
-    return `${keyword} ${this.id ? this.id.toJavaScript() : ''}(${this.params.map(param => param.toJavaScript()).join(', ')}) ${this.body.toJavaScript()}`;
+    return `${this.async ? 'async': ''} ${keyword} ${this.id ? this.id.toJavaScript() : ''}(${this.params.map(param => param.toJavaScript()).join(', ')}) ${this.body.toJavaScript()}`;
   }
 
 }

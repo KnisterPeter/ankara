@@ -2,6 +2,7 @@
 export * from './types/array-expression';
 export * from './types/arrow-function-expression';
 export * from './types/assignment-expression';
+export * from './types/await-expression';
 export * from './types/binary-expression';
 export * from './types/block-statement';
 export * from './types/break-statement';
