@@ -1,11 +1,6 @@
 #!/usr/bin/env node
 
-require('babel/register')({
-	"stage": 0,
-  "optional": [
-    "asyncToGenerator"
-  ]
-});
+require('babel/register');
 require('../register');
 
 var glob = require('glob');

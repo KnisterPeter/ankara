@@ -9,7 +9,7 @@ export class Super extends Node<babylon.Super> {
   }
 
   public toJavaScript(): string {
-    return `super()`;
+    return `super`;
   }
 
 }
