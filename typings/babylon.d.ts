@@ -253,10 +253,20 @@ declare module 'babylon' {
     body: Node[];
   }
 
+  export interface Super extends Node {
+  }
+
   export interface MethodDefinition extends Node {
     key: Identifier;
     static: boolean;
     kind: string;
     value: Expression;
+  }
+
+  export interface ClassProperty extends Node {
+    computed: boolean;
+    key: Identifier;
+    static: boolean;
+    value: Node;
   }
 }

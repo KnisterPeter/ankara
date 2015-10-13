@@ -11,8 +11,6 @@ const exts = config.extensions || ['.js'];
 const files: string[] = globby.sync(<string[]>config.files);
 let oldHandlers = {};
 
-console.log(files);
-
 function isCovered(filename) {
   const relFile = `.${sep}${relative(cwd, filename)}`;
   return files.indexOf(relFile) > -1;
