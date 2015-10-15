@@ -23,15 +23,19 @@ export class ReturnStatement extends Statement<babylon.ReturnStatement> {
 
   public instrument(path: string): void {
     let fragment = <ExpressionStatement>parseFragment(`__$c.statement("${path}", ${this.loc.start.line})`)[0];
-    this.argument.replaceWith(
-      th.sequenceExpression([
-        fragment.expression,
-        this.argument
-      ])
-    );
+    if (this.argument) {
+      this.argument.replaceWith(
+        th.sequenceExpression([
+          fragment.expression,
+          this.argument
+        ])
+      );
+    } else {
+      this.insertBefore(fragment);
+    }
   }
 
-  protected replaceChild(source: Node<any>, dest: Node<any>|Node<any>[]) {
+  protected replaceChild(source: Node<any>, dest: Node<any> | Node<any>[]) {
     if (Array.isArray(dest)) {
       throw new Error('Not supported');
     } else {
@@ -42,7 +46,9 @@ export class ReturnStatement extends Statement<babylon.ReturnStatement> {
 
   public visit(fn: (node: Node<any>) => void): void {
     fn(this);
-    this.argument && this.argument.visit(fn);
+    if (this.argument) {
+      this.argument.visit(fn);
+    }
   }
 
   public toJavaScript(): string {

@@ -11,6 +11,8 @@ export class AssignmentExpression extends Expression<babylon.AssignmentExpressio
 
   private _right: Expression<any>;
 
+  private _parenthesizedExpression: boolean;
+
   get operator() {
     if (typeof this._operator == 'undefined') {
       this._operator = this.raw.operator;
@@ -32,6 +34,13 @@ export class AssignmentExpression extends Expression<babylon.AssignmentExpressio
     return this._right;
   }
 
+  get parenthesizedExpression() {
+    if (typeof this._parenthesizedExpression == 'undefined') {
+      this._parenthesizedExpression = this.raw.parenthesizedExpression;
+    }
+    return this._parenthesizedExpression;
+  }
+
   public visit(fn: (node: Node<any>) => void): void {
     fn(this);
     this.left.visit(fn);
@@ -39,7 +48,11 @@ export class AssignmentExpression extends Expression<babylon.AssignmentExpressio
   }
 
   public toJavaScript(): string {
-    return `${this.left.toJavaScript()} ${this.operator} ${this.right.toJavaScript()}`;
+    let code = `${this.left.toJavaScript()} ${this.operator} ${this.right.toJavaScript()}`;
+    if (this.parenthesizedExpression) {
+      code = `(${code})`;
+    }
+    return code;
   }
 
 }

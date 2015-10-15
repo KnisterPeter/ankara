@@ -30,7 +30,7 @@ function loader(m, filename: string, old) {
 function registerExtension(ext: string) {
   var old = oldHandlers[ext] || oldHandlers[".js"] || require.extensions[".js"];
 
-  require.extensions[ext] = function(m, filename) {
+  require.extensions[ext] = function ankaraRequireHook(m, filename) {
     if (isCovered(filename)) {
       loader(m, filename, old);
     } else {

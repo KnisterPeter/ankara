@@ -11,6 +11,8 @@ export class LogicalExpression extends Expression<babylon.LogicalExpression> {
 
   private _right: Expression<any>;
 
+  private _parenthesizedExpression: boolean;
+
   get left() {
     if (typeof this._left == 'undefined') {
       this._left = <Expression<any>>th.convert(this.raw.left, this);
@@ -32,6 +34,13 @@ export class LogicalExpression extends Expression<babylon.LogicalExpression> {
     return this._right;
   }
 
+  get parenthesizedExpression() {
+    if (typeof this._parenthesizedExpression == 'undefined') {
+      this._parenthesizedExpression = this.raw.parenthesizedExpression;
+    }
+    return this._parenthesizedExpression;
+  }
+
   public visit(fn: (node: Node<any>) => void): void {
     fn(this);
     this.left.visit(fn);
@@ -39,7 +48,11 @@ export class LogicalExpression extends Expression<babylon.LogicalExpression> {
   }
 
   public toJavaScript(): string {
-    return `${this.left.toJavaScript()} ${this.operator} ${this.right.toJavaScript()}`;
+    let code = `${this.left.toJavaScript()} ${this.operator} ${this.right.toJavaScript()}`;
+    if (this.parenthesizedExpression) {
+      code = `(${code})`;
+    }
+    return code;
   }
 
 }

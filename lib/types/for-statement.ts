@@ -44,14 +44,23 @@ export class ForStatement extends Statement<babylon.ForStatement> {
 
   public visit(fn: (node: Node<any>) => void): void {
     fn(this);
-    this.init.visit(fn);
-    this.test.visit(fn);
-    this.update.visit(fn);
+    if (this.init) {
+      this.init.visit(fn);
+    }
+    if (this.test) {
+      this.test.visit(fn);
+    }
+    if (this.update) {
+      this.update.visit(fn);
+    }
     this.body.visit(fn);
   }
 
   public toJavaScript(): string {
-    return `for (${this.init.toJavaScript()};${this.test.toJavaScript()};${this.update.toJavaScript()}) ${this.body.toJavaScript()}\n`;
+    const init = this.init ? this.init.toJavaScript() : '';
+    const test = this.test ? this.test.toJavaScript() : '';
+    const update = this.update ? this.update.toJavaScript() : '';
+    return `for (${init};${test};${update}) ${this.body.toJavaScript()}\n`;
   }
 
 }

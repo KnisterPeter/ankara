@@ -167,12 +167,14 @@ declare module 'babylon' {
     left: Expression;
     operator: string;
     right: Expression;
+    parenthesizedExpression: boolean;
   }
 
   export interface AssignmentExpression extends Expression {
     operator: string;
     left: Node;
     right: Expression;
+    parenthesizedExpression: boolean;
   }
 
   export interface ArrayExpression extends Expression {
@@ -196,6 +198,7 @@ declare module 'babylon' {
     async: boolean;
     params: Identifier[];
     body: BlockStatement;
+    parenthesizedExpression: boolean;
   }
 
   export interface ArrowFunctionExpression extends Expression {
@@ -275,5 +278,35 @@ declare module 'babylon' {
   export interface AwaitExpression extends Expression {
     all: boolean;
     argument: Expression;
+  }
+
+  export interface ForInStatement extends Statement {
+    left: Expression;
+    right: Expression;
+    body: Statement;
+  }
+
+  export interface TryStatement extends Statement {
+    block: BlockStatement;
+    handler: CatchClause;
+  }
+
+  export interface CatchClause extends Node {
+    param: Identifier;
+    body: BlockStatement;
+  }
+
+  export interface ContinueStatement extends Statement {
+    label: Identifier;
+  }
+
+  export interface WhileStatement extends Statement {
+    test: Expression;
+    body: Statement;
+  }
+
+  export interface DoWhileStatement extends Statement {
+    test: Expression;
+    body: Statement;
   }
 }

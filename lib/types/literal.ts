@@ -36,12 +36,7 @@ export class Literal extends Expression<babylon.Literal> {
   }
 
   public toJavaScript(): string {
-    let str = this.value;
-    if (typeof str === 'string') {
-      str = "'" + (<string>str).replace(/'/g, "\\'") + "'";
-    } else if (this.value === null) {
-      str = 'null';
-    }
+    let str = this.raw.raw;
     return <string>str;
   }
 

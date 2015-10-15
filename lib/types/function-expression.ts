@@ -20,6 +20,8 @@ export class FunctionExpression extends Expression<babylon.FunctionExpression> {
   
   private _body: Statement<any>;
 
+  private _parenthesizedExpression: boolean;
+
   get generator() {
     if (typeof this._generator == 'undefined') {
       this._generator = this.raw.generator;
@@ -62,6 +64,13 @@ export class FunctionExpression extends Expression<babylon.FunctionExpression> {
     return this._body;
   }
 
+  get parenthesizedExpression() {
+    if (typeof this._parenthesizedExpression == 'undefined') {
+      this._parenthesizedExpression = this.raw.parenthesizedExpression;
+    }
+    return this._parenthesizedExpression;
+  }
+
   public visit(fn: (node: Node<any>) => void): void {
     fn(this);
     this.id && this.id.visit(fn);
@@ -73,7 +82,11 @@ export class FunctionExpression extends Expression<babylon.FunctionExpression> {
     const keyword = this.parent instanceof MethodDefinition
       ? ''
       : `function${this.generator ? '*' : ''}`;
-    return `${this.async ? 'async': ''} ${keyword} ${this.id ? this.id.toJavaScript() : ''}(${this.params.map(param => param.toJavaScript()).join(', ')}) ${this.body.toJavaScript()}`;
+    let code = `${this.async ? 'async': ''} ${keyword} ${this.id ? this.id.toJavaScript() : ''}(${this.params.map(param => param.toJavaScript()).join(', ')}) ${this.body.toJavaScript()}`;
+    if (this.parenthesizedExpression) {
+      code = `(${code})`;
+    }
+    return code;
   }
 
 }

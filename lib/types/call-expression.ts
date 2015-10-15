@@ -1,5 +1,6 @@
 import * as babylon from 'babylon';
 import {Expression} from './expression';
+import {FunctionExpression} from './function-expression';
 import {Node} from './node';
 import * as th from '../type-helper';
 
@@ -30,7 +31,8 @@ export class CallExpression extends Expression<babylon.CallExpression> {
   }
 
   public toJavaScript(): string {
-    return `${this.callee.toJavaScript()}(${this.arguments.map(arg => arg.toJavaScript()).join(', ')})`;
+    let callee = this.callee.toJavaScript();
+    return `${callee}(${this.arguments.map(arg => arg.toJavaScript()).join(', ')})`;
   }
 
 }
