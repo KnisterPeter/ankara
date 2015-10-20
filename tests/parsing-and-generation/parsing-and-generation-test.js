@@ -7,7 +7,7 @@ import {SimpleClass, ExtendedClass} from './classes';
 import {asyncFunction} from './async-functions';
 import {assignment, logical} from './expressions';
 import {selfCalling} from './functions';
-import {newlines} from './literals';
+import {newlines, extendedObjectLiterals} from './literals';
 // Will not work since we insert the coverage-lib as import and imports don't have a global this
 // Therefore this breaks in babel after instrumentation
 // https://babeljs.io/docs/faq/#why-is-this-being-remapped-to-undefined-
@@ -48,6 +48,13 @@ test('self-calling functions should be in parenthesis', t => {
 
 test('literals with escaped characters should stay escaped', t => {
   t.equal(newlines(), '\r\n\t\\n');
+  t.end();
+});
+
+test('creating of extended object literals', t => {
+  let literal = extendedObjectLiterals();
+  t.deepEqual(Object.keys(literal), ['a', 'b', 'test']);
+  t.equal(literal.test(), 'test');
   t.end();
 });
 

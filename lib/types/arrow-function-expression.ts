@@ -60,7 +60,11 @@ export class ArrowFunctionExpression extends Expression<babylon.ArrowFunctionExp
   }
 
   public toJavaScript(): string {
-    return `${this.generator ? '*' : ''}(${this.params.map(param => param.toJavaScript()).join(', ')}) => ${this.body.toJavaScript()}`;
+    let code = `${this.generator ? '*' : ''}(${this.params.map(param => param.toJavaScript()).join(', ')}) => ${this.body.toJavaScript()}`;
+    if (this.expression) {
+      code = `(${code})`;
+    }
+    return code;
   }
 
 }

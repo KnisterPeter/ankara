@@ -58,7 +58,11 @@ export class Property extends Expression<babylon.Property> {
   }
 
   public toJavaScript(): string {
-    return `${this.key.toJavaScript()}: ${this.value.toJavaScript()}`;
+    let key = this.key.toJavaScript();
+    if (this.computed) {
+      key = `[${key}]`;
+    }
+    return `${key}: ${this.value.toJavaScript()}`;
   }
 
 }
