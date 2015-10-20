@@ -322,4 +322,8 @@ declare module 'babylon' {
     argument: Identifier;
   }
 
+  export interface ObjectPattern extends Node {
+    properties: Property[];
+  }
+
 }

@@ -38,6 +38,7 @@ export * from './types/method-definition';
 export * from './types/new-expression';
 export * from './types/node';
 export * from './types/object-expression';
+export * from './types/object-pattern';
 export * from './types/program';
 export * from './types/property';
 export * from './types/rest-element';

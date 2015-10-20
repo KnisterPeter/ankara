@@ -10,7 +10,6 @@ export function destructuredArray() {
   return c;
 }
 
-
 export function restParameter(a, b, ...rest) {
   return rest;
 }
@@ -32,4 +31,13 @@ export function objectSpread() {
     ...a,
     ...b
   };
+}
+
+export function destructuredObject() {
+  let obj = {
+    key1: 'value1',
+    key2: 'value2'
+  };
+  let {key2} = obj;
+  return key2;
 }

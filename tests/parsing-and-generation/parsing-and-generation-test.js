@@ -12,7 +12,7 @@ import {newlines, extendedObjectLiterals} from './literals';
 // Therefore this breaks in babel after instrumentation
 // https://babeljs.io/docs/faq/#why-is-this-being-remapped-to-undefined-
 //import './jquery-1.11.3.js';
-import {arraySpread, destructuredArray, restParameter, spreadParameter, objectSpread} from './spread';
+import {arraySpread, destructuredArray, restParameter, spreadParameter, objectSpread, destructuredObject} from './spread';
 
 test('parsing and regenerating classes', t => {
   let instance = new SimpleClass();
@@ -80,5 +80,10 @@ test('spreadParameters', t => {
 
 test('objectSpread', t => {
   t.deepEqual(objectSpread(), {key1: 'value1', key2: 'value3'});
+  t.end();
+});
+
+test('destructuredObject', t => {
+  t.equal(destructuredObject(), 'value2');
   t.end();
 });
