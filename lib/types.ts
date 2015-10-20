@@ -44,6 +44,7 @@ export * from './types/rest-element';
 export * from './types/return-statement';
 export * from './types/sequence-expression';
 export * from './types/spread-element';
+export * from './types/spread-property';
 export * from './types/statement';
 export * from './types/super';
 export * from './types/switch-case';

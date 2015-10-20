@@ -318,4 +318,8 @@ declare module 'babylon' {
     elements: Identifier[];
   }
 
+  export interface SpreadProperty extends Node {
+    argument: Identifier;
+  }
+
 }
