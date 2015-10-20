@@ -5,11 +5,14 @@ import {sync as mkdirp} from 'mkdirp';
 import {join, relative, dirname} from 'path';
 import {readFileSync, writeFileSync} from 'fs';
 import {instrument, generateLcov} from './index';
+import rc from 'rc';
 
 export default function(argv: string[]) {
   const cwd = process.cwd();
-  const config = JSON.parse(readFileSync(join(cwd, '.ankara.json')).toString());
-  
+  const config = rc('ankara', {
+    extensions: ['.js']
+  });
+
   const args = minimist(argv);
   switch (args._[0]) {
     case 'instrument':

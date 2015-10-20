@@ -4,8 +4,8 @@
   "description": "Code coverage tool leveraging babylon to cover es6/es7 and strawman proposals",
   "main": "dist/index.js",
   "bin": {
-    "instrument": "bin/instrument.js",
-    "lcov": "bin/lcov.js"
+    "ankara-instrument": "bin/instrument.js",
+    "ankara-lcov": "bin/lcov.js"
   },
   "scripts": {
     "start": "npm run typescript && npm run babel",
@@ -45,6 +45,7 @@
     "globby": "^3.0.1",
     "minimist": "^1.2.0",
     "mkdirp": "0.5.1",
+    "rc": "^1.1.2",
     "source-map-support": "^0.3.2"
   }
 }

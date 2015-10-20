@@ -3,11 +3,14 @@ import {join, relative, sep, dirname} from 'path';
 import {writeFileSync, readFileSync} from 'fs';
 import {sync as mkdirp} from 'mkdirp';
 import * as globby from 'globby';
-import {instrument} from './index'; 
+import {instrument} from './index';
+import rc from 'rc';
 
 const cwd = process.cwd();
-const config = JSON.parse(readFileSync(join(cwd, '.ankara.json')).toString());
-const exts = config.extensions || ['.js'];
+const config = rc('ankara', {
+  extensions: ['.js']
+});
+const {extensions} = config;
 const files: string[] = globby.sync(<string[]>config.files);
 let oldHandlers = {};
 
@@ -39,7 +42,7 @@ function registerExtension(ext: string) {
   };
 };
 
-exts.forEach((ext) => {
+extensions.forEach((ext) => {
   oldHandlers[ext] = require.extensions[ext];
   registerExtension(ext);
 });
