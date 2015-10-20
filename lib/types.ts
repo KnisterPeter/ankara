@@ -1,5 +1,6 @@
 /// <reference path="../typings/references.d.ts" />
 export * from './types/array-expression';
+export * from './types/array-pattern';
 export * from './types/arrow-function-expression';
 export * from './types/assignment-expression';
 export * from './types/await-expression';
@@ -42,6 +43,7 @@ export * from './types/property';
 export * from './types/rest-element';
 export * from './types/return-statement';
 export * from './types/sequence-expression';
+export * from './types/spread-element';
 export * from './types/statement';
 export * from './types/super';
 export * from './types/switch-case';

@@ -12,6 +12,7 @@ import {newlines} from './literals';
 // Therefore this breaks in babel after instrumentation
 // https://babeljs.io/docs/faq/#why-is-this-being-remapped-to-undefined-
 //import './jquery-1.11.3.js';
+import {arraySpread, destructuredArray, restParameter, spreadParameter} from './spread';
 
 test('parsing and regenerating classes', t => {
   let instance = new SimpleClass();
@@ -47,5 +48,25 @@ test('self-calling functions should be in parenthesis', t => {
 
 test('literals with escaped characters should stay escaped', t => {
   t.equal(newlines(), '\r\n\t\\n');
+  t.end();
+});
+
+test('array creating with spread operator', t => {
+  t.deepEqual(arraySpread(), [0, 1, 2, 'a', 'b', 'c']);
+  t.end();
+});
+
+test('array destructuring', t => {
+  t.equal(destructuredArray(), 'c');
+  t.end();
+});
+
+test('restParameters', t => {
+  t.deepEqual(restParameter('a', 'b', 'c', 'd'), ['c', 'd']);
+  t.end();
+});
+
+test('spreadParameters', t => {
+  t.equal(spreadParameter(), 3);
   t.end();
 });

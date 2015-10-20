@@ -309,4 +309,13 @@ declare module 'babylon' {
     test: Expression;
     body: Statement;
   }
+
+  export interface SpreadElement extends Node {
+    argument: Identifier;
+  }
+
+  export interface ArrayPattern extends Node {
+    elements: Identifier[];
+  }
+
 }
