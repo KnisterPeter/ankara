@@ -14,7 +14,7 @@ Code coverage tool leveraging babylon to cover es6/es7 and strawman proposals.
 Install as npm package:
 
 ```sh
-npm install ankara --save-dev
+npm install ankara-coverage --save-dev
 ```
 
 ## Configuration
