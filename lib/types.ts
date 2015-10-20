@@ -3,6 +3,7 @@ export * from './types/array-expression';
 export * from './types/array-pattern';
 export * from './types/arrow-function-expression';
 export * from './types/assignment-expression';
+export * from './types/assignment-pattern';
 export * from './types/await-expression';
 export * from './types/binary-expression';
 export * from './types/block-statement';

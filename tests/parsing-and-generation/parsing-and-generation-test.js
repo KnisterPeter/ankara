@@ -6,7 +6,7 @@ import * as fs from 'fs';
 import {SimpleClass, ExtendedClass} from './classes';
 import {asyncFunction} from './async-functions';
 import {assignment, logical} from './expressions';
-import {selfCalling} from './functions';
+import {selfCalling, defaultParams} from './functions';
 import {newlines, extendedObjectLiterals} from './literals';
 // Will not work since we insert the coverage-lib as import and imports don't have a global this
 // Therefore this breaks in babel after instrumentation
@@ -44,6 +44,11 @@ test('parenthesis in logical expressions should be minimal', t => {
 
 test('self-calling functions should be in parenthesis', t => {
   selfCalling(() => t.end());
+});
+
+test('defaultParams', t => {
+  t.equal(defaultParams(), 3);
+  t.end();
 });
 
 test('literals with escaped characters should stay escaped', t => {

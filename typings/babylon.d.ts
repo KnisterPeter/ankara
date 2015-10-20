@@ -326,4 +326,9 @@ declare module 'babylon' {
     properties: Property[];
   }
 
+  export interface AssignmentPattern extends Node {
+      left: Identifier;
+      right: Literal;
+  }
+
 }
