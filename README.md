@@ -35,12 +35,12 @@ There are two steps required.
 
 First instrumenting your code:
 ```sh
-./node_modules/.bin/instrument.js
+./node_modules/.bin/ankara-instrument.js
 ```
 
 Second generating lcov report:
 ```sh
-./node_modules/.bin/lcov.js
+./node_modules/.bin/ankara-lcov.js
 ```
 
 The instrumentation step could be done automatically with the provided require hook.

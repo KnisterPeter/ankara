@@ -12,26 +12,26 @@ const config = rc('ankara', {
 });
 const {extensions} = config;
 const files: string[] = globby.sync(<string[]>config.files);
-let oldHandlers = {};
+const oldHandlers = {};
 
-function isCovered(filename) {
+function isCovered(filename): boolean {
   const relFile = `.${sep}${relative(cwd, filename)}`;
   return files.indexOf(relFile) > -1;
 }
 
 function loader(m, filename: string, old) {
   // console.log(`-- ${filename} -------------------------------`);
-  let instr = instrument(filename);
+  const instr = instrument(filename);
   // console.log(instr);
   // console.log('---------------------------------');
-  let instrumentedFilename = join(process.cwd(), 'coverage', relative(process.cwd(), filename));
+  const instrumentedFilename = join(process.cwd(), 'coverage', relative(process.cwd(), filename));
   mkdirp(dirname(instrumentedFilename));
   writeFileSync(instrumentedFilename, instr);
   old(m, instrumentedFilename);
 }
 
 function registerExtension(ext: string) {
-  var old = oldHandlers[ext] || oldHandlers[".js"] || require.extensions[".js"];
+  const old = oldHandlers[ext] || oldHandlers[".js"] || require.extensions[".js"];
 
   require.extensions[ext] = function ankaraRequireHook(m, filename) {
     if (isCovered(filename)) {
