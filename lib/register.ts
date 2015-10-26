@@ -3,7 +3,7 @@ import {join, relative, sep, dirname} from 'path';
 import {writeFileSync, readFileSync} from 'fs';
 import {sync as mkdirp} from 'mkdirp';
 import * as globby from 'globby';
-import {instrument} from './index';
+import {instrumentFile} from './index';
 import rc from 'rc';
 
 const cwd = process.cwd();
@@ -11,22 +11,12 @@ const config = rc('ankara', {
   extensions: ['.js']
 });
 const {extensions} = config;
-const files: string[] = globby.sync(<string[]>config.files);
+const excludes: string[] = globby.sync(<string[]>config.excludes);
 const oldHandlers = {};
-
-function isCovered(filename): boolean {
-  const relFile = `.${sep}${relative(cwd, filename)}`;
-  return files.indexOf(relFile) > -1;
-}
+const isCovered = (filename) => excludes.indexOf(relative(cwd, filename)) == -1;
 
 function loader(m, filename: string, old) {
-  // console.log(`-- ${filename} -------------------------------`);
-  const instr = instrument(filename);
-  // console.log(instr);
-  // console.log('---------------------------------');
-  const instrumentedFilename = join(process.cwd(), 'coverage', relative(process.cwd(), filename));
-  mkdirp(dirname(instrumentedFilename));
-  writeFileSync(instrumentedFilename, instr);
+  const instrumentedFilename = instrumentFile(filename);
   old(m, instrumentedFilename);
 }
 

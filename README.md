@@ -25,10 +25,19 @@ ankara is reading its configuration from an optional '.ankara.json' file in your
     ".js"
   ],
   "files": [
-    "!**/node_modules/**"
+    "path/to/main.js"
+  ],
+  "excludes": [
+    "**/node_modules/**"
   ]
 }
 ```
+
+* The extensions key are all valid file types which should be covered.
+* The files key should contain the main application/library entry points.
+  This is only requried if the `ankara-instrument` binary is used.
+* The excludes key should contain all sources not covered. This defaults to
+  `'**/node_modules/**'`
 
 ## Execution
 There are two steps required.
@@ -37,6 +46,8 @@ First instrumenting your code:
 ```sh
 ./node_modules/.bin/ankara-instrument.js
 ```
+
+Then execute your tests with the covered sources.
 
 Second generating lcov report:
 ```sh

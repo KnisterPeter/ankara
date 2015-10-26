@@ -1,15 +1,57 @@
 /// <reference path="../typings/references.d.ts" />
 import 'source-map-support/register';
-import {join, relative} from 'path';
+import {join, relative, dirname, basename} from 'path';
+import {sync as mkdirp} from 'mkdirp';
 import {existsSync, readFileSync, writeFileSync} from 'fs';
+import rc from 'rc';
 import {CoverageData, FileCoverageData} from './cover';
 import {parse, parseFragment} from './parser';
-
-import {Program} from './types/program';
-import {ImportDeclaration} from './types/import-declaration';
+import * as types from './types';
 
 let devCover = join(__dirname, 'cover.js');
 let devMode = existsSync(devCover);
+
+const config = rc('ankara', {
+  extensions: ['.js']
+});
+
+/**
+ * @param entryPoint - The file to start instrumenting with
+ * @param cover - True if this file should be covered, false to only collect next files
+ * @returns An array of next files to instrument
+ */
+export function instrumentFiles(entryPoint: string, cover: boolean): string[] {
+  let next: string[] = [];
+  const relativeFile = relative(process.cwd(), entryPoint);
+  let ast = parse(relativeFile);
+  ast.visit(node => {
+    if (node instanceof types.ImportDeclaration) {
+      let dependency = (node.source as types.Literal).value as string;
+      if (dependency.charAt(0) == '.') {
+        if (basename(dependency).lastIndexOf('.') == -1) {
+          // TODO: Check which extension is the correct one (assuming index 0 is not enough)
+          dependency = dependency + config.extensions[0];
+        }
+        next.push(join(dirname(relativeFile), dependency));
+      }
+    }
+  });
+  if (cover) {
+    instrumentFile(relativeFile);
+  }
+  return next;
+}
+
+export function instrumentFile(file: string): string {
+  //console.log(`-- ${file} -------------------------------`);
+  const instr = instrument(file);
+  // console.log(instr);
+  console.log('---------------------------------');
+  const instrumentedFile = join(process.cwd(), 'coverage', relative(process.cwd(), file));
+  mkdirp(dirname(instrumentedFile));
+  writeFileSync(instrumentedFile, instr);
+  return instrumentedFile;
+}
 
 export function instrument(file: string): string {
   const relativeFile = relative(process.cwd(), file);
@@ -21,7 +63,7 @@ export function instrument(file: string): string {
     }
   });
   ast.visit(node => {
-    if (node instanceof Program) {
+    if (node instanceof types.Program) {
       let coverLib = devMode ? devCover : 'ankara/dist/cover';
       let fragment = parseFragment(`
         import {cover as __$c} from '${coverLib}';

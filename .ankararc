@@ -3,9 +3,14 @@
     ".js"
   ],
   "files": [
-    "!**/node_modules/**",
-    "./tests/**/*.js",
-    "!./tests/**/*-test.js",
-    "!./tests/*.js"
+    "**/tests/**/*.js"
+  ],
+  "excludes": [
+    "**/node_modules/**",
+    "**/tests/*.js",
+    "**/tests/*/*-test.js",
+    "**/dist/**",
+    "**/temp/**",
+    "**/coverage/**"
   ]
 }

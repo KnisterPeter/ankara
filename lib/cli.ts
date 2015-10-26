@@ -2,9 +2,9 @@
 import minimist from 'minimist';
 import * as globby from 'globby';
 import {sync as mkdirp} from 'mkdirp';
-import {join, relative, dirname} from 'path';
+import {sep, join, relative, dirname} from 'path';
 import {readFileSync, writeFileSync} from 'fs';
-import {instrument, generateLcov} from './index';
+import {instrumentFiles, generateLcov} from './index';
 import rc from 'rc';
 
 export default function(argv: string[]) {
@@ -16,12 +16,18 @@ export default function(argv: string[]) {
   const args = minimist(argv);
   switch (args._[0]) {
     case 'instrument':
+      const excludes = globby.sync(<string[]>config.excludes);
+      const isCovered = (filename) => excludes.indexOf(relative(cwd, filename)) == -1;
       globby.sync(<string[]>config.files).forEach(filename => {
-        const source = instrument(filename);
-        const instrumentedFilename = join(cwd, 'coverage', relative(cwd, filename));
-        mkdirp(dirname(instrumentedFilename));
-        writeFileSync(instrumentedFilename, source);
-        console.log(`Instrumented ${relative(cwd, filename)} -> ${relative(cwd, instrumentedFilename)}`);
+        let next: string[] = [filename];
+        do {
+          const file = next.pop();
+          const covered = isCovered(file);
+          next = next.concat(instrumentFiles(file, covered));
+          if (covered) {
+            console.log(`Instrumented ${relative(cwd, file)}`);
+          }
+        } while (next.length > 0);
       });
       break;
     case 'lcov':
