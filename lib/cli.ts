@@ -10,7 +10,8 @@ import rc from 'rc';
 export default function(argv: string[]) {
   const cwd = process.cwd();
   const config = rc('ankara', {
-    extensions: ['.js']
+    extensions: ['.js'],
+    excludes: ['**/node_modules/**']
   });
 
   const args = minimist(argv);

@@ -8,7 +8,8 @@ import rc from 'rc';
 
 const cwd = process.cwd();
 const config = rc('ankara', {
-  extensions: ['.js']
+  extensions: ['.js'],
+  excludes: ['**/node_modules/**']
 });
 const {extensions} = config;
 const excludes: string[] = globby.sync(<string[]>config.excludes);
