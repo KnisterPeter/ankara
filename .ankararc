@@ -6,6 +6,7 @@
     "**/tests/**/*.js"
   ],
   "excludes": [
+    "register.js",
     "**/node_modules/**",
     "**/tests/*.js",
     "**/tests/*/*-test.js",
