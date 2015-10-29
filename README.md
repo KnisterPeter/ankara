@@ -40,18 +40,25 @@ ankara is reading its configuration from an optional '.ankara.json' file in your
   `'**/node_modules/**'`
 
 ## Execution
-There are two steps required.
+To create an lcov coverage report the easiest method is to create a wrapper
+script which executes the test. Then call this script with the `ankara-cover` command.
+
+```sh
+./node_modules/.bin/ankara-cover <script-to-run-your-tests>
+```
+
+Optionally one can use two steps.
 
 First instrumenting your code:
 ```sh
-./node_modules/.bin/ankara-instrument.js
+./node_modules/.bin/ankara-instrument
 ```
 
 Then execute your tests with the covered sources.
 
 Second generating lcov report:
 ```sh
-./node_modules/.bin/ankara-lcov.js
+./node_modules/.bin/ankara-lcov
 ```
 
 The instrumentation step could be done automatically with the provided require hook.
