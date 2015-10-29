@@ -5,14 +5,15 @@
   "main": "dist/index.js",
   "bin": {
     "ankara-instrument": "bin/instrument.js",
-    "ankara-lcov": "bin/lcov.js"
+    "ankara-lcov": "bin/lcov.js",
+    "ankara-cover": "bin/cover.js"
   },
   "scripts": {
     "start": "npm run typescript && npm run babel",
     "typescript": "tsc --outDir temp",
     "babel": "babel --source-maps=inline --out-dir dist temp",
     "test": "npm start && npm run test-exec",
-    "test-exec": "./tests/run.js |faucet",
+    "test-exec": "./bin/cover.js tests/run.js |faucet",
     "watch": "npm run typescript-watch & npm run babel-watch & npm run test-watch",
     "typescript-watch": "npm run typescript -- --watch",
     "babel-watch": "npm run babel -- --watch",

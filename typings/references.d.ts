@@ -4,3 +4,4 @@
 /// <reference path="mkdirp/mkdirp.d.ts" />
 /// <reference path="minimist.d.ts" />
 /// <reference path="rc.d.ts" />
+/// <reference path="module.d.ts" />

@@ -46,7 +46,7 @@ export function instrumentFile(file: string): string {
   //console.log(`-- ${file} -------------------------------`);
   const instr = instrument(file);
   // console.log(instr);
-  console.log('---------------------------------');
+  //console.log('---------------------------------');
   const instrumentedFile = join(process.cwd(), 'coverage', relative(process.cwd(), file));
   mkdirp(dirname(instrumentedFile));
   writeFileSync(instrumentedFile, instr);
