@@ -1,6 +1,6 @@
 {
   "name": "ankara-coverage",
-  "version": "0.6.1",
+  "version": "0.6.2",
   "description": "Code coverage tool leveraging babylon to cover es6/es7 and strawman proposals",
   "main": "dist/index.js",
   "bin": {
