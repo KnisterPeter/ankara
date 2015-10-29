@@ -5,7 +5,7 @@ import minimist from 'minimist';
 import * as globby from 'globby';
 import {sync as mkdirp} from 'mkdirp';
 import {sep, join, relative, dirname, resolve} from 'path';
-import {readFileSync, writeFileSync, existsSync} from 'fs';
+import {readFileSync, writeFileSync, existsSync, lstatSync} from 'fs';
 import {instrumentFile, instrumentFiles, generateLcov} from './index';
 import rc from 'rc';
 
@@ -26,6 +26,7 @@ switch (args._[2]) {
     modulePrototype.require = function(id: string): string {
       var moduleToLoad = id;
       if (id[0] == '.') {
+        // TODO: Cleanup this mess
         var resolvedPath = resolve(dirname(this.id), id);
         if (!existsSync(resolvedPath)) {
           var temp = resolvedPath;
@@ -33,6 +34,9 @@ switch (args._[2]) {
           if (!existsSync(resolvedPath)) {
             resolvedPath = temp + '.json';
           }
+        }
+        if (lstatSync(resolvedPath).isDirectory()) {
+          resolvedPath = join(resolvedPath, 'index.js');
         }
         if (isCovered(resolvedPath, excludes)) {
           moduleToLoad = instrumentFile(resolvedPath);
