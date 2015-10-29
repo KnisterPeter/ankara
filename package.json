@@ -6,6 +6,9 @@
   "bin": {
     "ankara": "./dist/cli.js"
   },
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "start": "npm run typescript && npm run babel",
     "typescript": "tsc --outDir temp",
