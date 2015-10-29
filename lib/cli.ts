@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 /// <reference path="../typings/references.d.ts" />
 import {prototype as modulePrototype} from 'module'; 
 import minimist from 'minimist';
@@ -12,52 +13,50 @@ const cwd = process.cwd();
 const getExcludes = (config) => globby.sync(<string[]>config.excludes);
 const isCovered = (filename, excludes) => excludes.indexOf(relative(cwd, filename)) == -1;
 
-export default function(argv: string[]) {
-  const config = rc('ankara', {
-    extensions: ['.js'],
-    excludes: ['**/node_modules/**']
-  });
-  const excludes = getExcludes(config);
+const config = rc('ankara', {
+  extensions: ['.js'],
+  excludes: ['**/node_modules/**']
+});
+const excludes = getExcludes(config);
 
-  const args = minimist(argv);
-  switch (args._[0]) {
-    case 'cover':
-      const originalRequire = modulePrototype.require;
-      modulePrototype.require = function(id: string): string {
-        var moduleToLoad = id;
-        if (id[0] == '.') {
-          var resolvedPath = resolve(dirname(this.id), id);
+const args = minimist(process.argv);
+switch (args._[2]) {
+  case 'cover':
+    const originalRequire = modulePrototype.require;
+    modulePrototype.require = function(id: string): string {
+      var moduleToLoad = id;
+      if (id[0] == '.') {
+        var resolvedPath = resolve(dirname(this.id), id);
+        if (!existsSync(resolvedPath)) {
+          var temp = resolvedPath;
+          resolvedPath = resolvedPath + config.extensions[0];
           if (!existsSync(resolvedPath)) {
-            var temp = resolvedPath;
-            resolvedPath = resolvedPath + config.extensions[0];
-            if (!existsSync(resolvedPath)) {
-              resolvedPath = temp + '.json';
-            }
-          }
-          if (isCovered(resolvedPath, excludes)) {
-            moduleToLoad = instrumentFile(resolvedPath);
+            resolvedPath = temp + '.json';
           }
         }
-        return originalRequire.call(this, moduleToLoad);
+        if (isCovered(resolvedPath, excludes)) {
+          moduleToLoad = instrumentFile(resolvedPath);
+        }
       }
-      originalRequire(join(cwd, args._[1]));
-      process.on('beforeExit', () => generateLcov());
-      break;
-    case 'instrument':
-      globby.sync(<string[]>config.files).forEach(filename => {
-        let next: string[] = [filename];
-        do {
-          const file = next.pop();
-          const covered = isCovered(file, excludes);
-          next = next.concat(instrumentFiles(file, covered));
-          if (covered) {
-            console.log(`Instrumented ${relative(cwd, file)}`);
-          }
-        } while (next.length > 0);
-      });
-      break;
-    case 'lcov':
-      generateLcov();
-      break;
-  }
+      return originalRequire.call(this, moduleToLoad);
+    }
+    originalRequire(join(cwd, args._[3]));
+    process.on('beforeExit', () => generateLcov());
+    break;
+  case 'instrument':
+    globby.sync(<string[]>config.files).forEach(filename => {
+      let next: string[] = [filename];
+      do {
+        const file = next.pop();
+        const covered = isCovered(file, excludes);
+        next = next.concat(instrumentFiles(file, covered));
+        if (covered) {
+          console.log(`Instrumented ${relative(cwd, file)}`);
+        }
+      } while (next.length > 0);
+    });
+    break;
+  case 'lcov':
+    generateLcov();
+    break;
 }

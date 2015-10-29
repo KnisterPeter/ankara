@@ -4,21 +4,20 @@
   "description": "Code coverage tool leveraging babylon to cover es6/es7 and strawman proposals",
   "main": "dist/index.js",
   "bin": {
-    "ankara-instrument": "bin/instrument.js",
-    "ankara-lcov": "bin/lcov.js",
-    "ankara-cover": "bin/cover.js"
+    "ankara": "./dist/cli.js"
   },
   "scripts": {
     "start": "npm run typescript && npm run babel",
     "typescript": "tsc --outDir temp",
     "babel": "babel --source-maps=inline --out-dir dist temp",
     "test": "npm start && npm run test-exec",
-    "test-exec": "./bin/cover.js tests/run.js |faucet",
+    "test-exec": "node ./dist/cli.js cover tests/run.js |faucet",
     "watch": "npm run typescript-watch & npm run babel-watch & npm run test-watch",
     "typescript-watch": "npm run typescript -- --watch",
     "babel-watch": "npm run babel -- --watch",
     "test-watch": "chokidar 'dist/**/*.js' 'tests/**/*' --debounce 800 --command 'npm run test-exec'",
-    "clean": "rm -rf dist temp"
+    "clean": "rm -rf dist temp",
+    "prepublish": "not-in-install && npm start || echo 'In install cycle, skipping prepublish'"
   },
   "author": {
     "name": "Markus Wolf",
@@ -38,6 +37,7 @@
     "chokidar-cli": "1.1.1",
     "faucet": "0.0.1",
     "glob": "^5.0.15",
+    "in-publish": "^2.0.0",
     "tape": "4.2.2",
     "typescript": "1.6.2"
   },

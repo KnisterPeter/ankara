@@ -35,30 +35,30 @@ ankara is reading its configuration from an optional '.ankara.json' file in your
 
 * The extensions key are all valid file types which should be covered.
 * The files key should contain the main application/library entry points.
-  This is only requried if the `ankara-instrument` binary is used.
+  This is only requried if the `ankara instrument` binary is used.
 * The excludes key should contain all sources not covered. This defaults to
   `'**/node_modules/**'`
 
 ## Execution
 To create an lcov coverage report the easiest method is to create a wrapper
-script which executes the test. Then call this script with the `ankara-cover` command.
+script which executes the test. Then call this script with the `ankara cover` command.
 
 ```sh
-./node_modules/.bin/ankara-cover <script-to-run-your-tests>
+./node_modules/.bin/ankara cover <script-to-run-your-tests>
 ```
 
 Optionally one can use two steps.
 
 First instrumenting your code:
 ```sh
-./node_modules/.bin/ankara-instrument
+./node_modules/.bin/ankara instrument
 ```
 
 Then execute your tests with the covered sources.
 
 Second generating lcov report:
 ```sh
-./node_modules/.bin/ankara-lcov
+./node_modules/.bin/ankara lcov
 ```
 
 The instrumentation step could be done automatically with the provided require hook.
