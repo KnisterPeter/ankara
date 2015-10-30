@@ -18,6 +18,7 @@ export * from './types/continue-statement';
 export * from './types/do-while-statement';
 export * from './types/export-default-declaration';
 export * from './types/export-named-declaration';
+export * from './types/export-specifier';
 export * from './types/expression';
 export * from './types/expression-statement';
 export * from './types/file';

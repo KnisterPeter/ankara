@@ -87,6 +87,11 @@ declare module 'babylon' {
     declaration: Node;
   }
 
+  export interface ExportSpecifier extends Node {
+    local: Identifier;
+    exported: Identifier;
+  }
+
   export interface BlockStatement extends Statement {
     body: Statement[];
   }
