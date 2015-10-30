@@ -13,6 +13,7 @@ import {newlines, extendedObjectLiterals} from './literals';
 // https://babeljs.io/docs/faq/#why-is-this-being-remapped-to-undefined-
 //import './jquery-1.11.3.js';
 import {arraySpread, destructuredArray, restParameter, spreadParameter, objectSpread, destructuredObject} from './spread';
+import './imports';
 
 test('parsing and regenerating classes', t => {
   let instance = new SimpleClass();

@@ -56,7 +56,7 @@ export class ImportDeclaration extends Statement<babylon.ImportDeclaration> {
     if (otherImports) {
       imports.push(otherImports);
     }
-    return `import ${imports.join(', ')} from ${this.source.toJavaScript()};\n`;
+    return `import ${imports.join(', ')}${imports.length ? ' from ' : ''}${this.source.toJavaScript()};\n`;
   }
 
 }
