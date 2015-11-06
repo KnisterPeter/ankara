@@ -1,6 +1,4 @@
 {
-	"stage": 0,
-  "optional": [
-    "asyncToGenerator"
-  ]
+  "presets": ["es2015", "stage-1"],
+  "plugins": ["transform-async-to-generator"]
 }
