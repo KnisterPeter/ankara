@@ -39,17 +39,17 @@
     "babel": "5.8.29",
     "chokidar-cli": "1.1.1",
     "faucet": "0.0.1",
-    "glob": "^5.0.15",
-    "in-publish": "^2.0.0",
+    "glob": "5.0.15",
+    "in-publish": "2.0.0",
     "tape": "4.2.2",
     "typescript": "1.6.2"
   },
   "dependencies": {
     "babylon": "5.8.29",
-    "globby": "^3.0.1",
-    "minimist": "^1.2.0",
+    "globby": "3.0.1",
+    "minimist": "1.2.0",
     "mkdirp": "0.5.1",
-    "rc": "^1.1.2",
-    "source-map-support": "^0.3.2"
+    "rc": "1.1.5",
+    "source-map-support": "0.3.3"
   }
 }
