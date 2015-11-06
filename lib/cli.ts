@@ -9,6 +9,7 @@ import {readFileSync, writeFileSync, existsSync, lstatSync} from 'fs';
 import {instrumentFile, instrumentFiles, generateLcov} from './index';
 import rc from 'rc';
 
+console.log('Preparing ankara...');
 const cwd = process.cwd();
 const getExcludes = (config) => globby.sync(<string[]>config.excludes);
 const isCovered = (filename, excludes) => excludes.indexOf(relative(cwd, filename)) == -1;
@@ -19,6 +20,7 @@ const config = rc('ankara', {
 });
 const excludes = getExcludes(config);
 
+console.log('Running ankara...');
 const args = minimist(process.argv);
 switch (args._[2]) {
   case 'cover':
@@ -27,7 +29,7 @@ switch (args._[2]) {
       var moduleToLoad = id;
       if (id[0] == '.') {
         // TODO: Cleanup this mess
-        var resolvedPath = resolve(dirname(this.id), id);
+        var resolvedPath = resolve(dirname(this.id), id).replace('coverage/', '');
         if (!existsSync(resolvedPath)) {
           var temp = resolvedPath;
           resolvedPath = resolvedPath + config.extensions[0];
