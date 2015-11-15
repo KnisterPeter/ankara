@@ -36,7 +36,7 @@
     "npm": ">= 2.5.1"
   },
   "devDependencies": {
-    "babel": "5.8.29",
+    "babel": "6.1.18",
     "chokidar-cli": "1.1.1",
     "faucet": "0.0.1",
     "glob": "5.0.15",
