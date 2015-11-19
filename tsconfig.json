@@ -1,12 +1,12 @@
 {
-	"compilerOptions": {
-		"target": "ES6",
+  "compilerOptions": {
+    "target": "ES6",
     "inlineSourceMap": true,
-		"experimentalAsyncFunctions": true
-	},
-	"files": [
-		"lib/index",
+    "experimentalAsyncFunctions": true
+  },
+  "files": [
+    "lib/index",
     "lib/register",
     "lib/cli"
-	]
+  ]
 }
