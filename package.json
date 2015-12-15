@@ -43,7 +43,7 @@
     "in-publish": "2.0.0",
     "tape": "4.2.2",
     "tslint": "3.2.0",
-    "typescript": "1.7.3"
+    "typescript": "1.7.5"
   },
   "dependencies": {
     "babylon": "5.8.29",
