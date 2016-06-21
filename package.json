@@ -39,7 +39,7 @@
     "babel": "5.8.29",
     "chokidar-cli": "1.2.0",
     "faucet": "0.0.1",
-    "glob": "7.0.4",
+    "glob": "7.0.5",
     "in-publish": "2.0.0",
     "tape": "4.5.1",
     "tslint": "3.11.0",
