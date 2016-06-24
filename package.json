@@ -46,7 +46,7 @@
     "typescript": "1.8.10"
   },
   "dependencies": {
-    "babylon": "5.8.29",
+    "babylon": "6.8.2",
     "globby": "5.0.0",
     "minimist": "1.2.0",
     "mkdirp": "0.5.1",
