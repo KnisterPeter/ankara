@@ -47,7 +47,7 @@
   },
   "dependencies": {
     "babylon": "5.8.29",
-    "globby": "5.0.0",
+    "globby": "6.0.0",
     "minimist": "1.2.0",
     "mkdirp": "0.5.1",
     "rc": "1.1.6",
