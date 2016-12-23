@@ -42,7 +42,7 @@
     "glob": "7.1.1",
     "in-publish": "2.0.0",
     "tape": "4.6.3",
-    "tslint": "4.1.1",
+    "tslint": "4.2.0",
     "typescript": "2.1.4"
   },
   "dependencies": {
